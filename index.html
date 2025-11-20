@@ -796,18 +796,16 @@
         const urlParams = new URLSearchParams(window.location.search);
         const wishId = urlParams.get('wish');
         
-        if (wishId) {
+        if (wishId && wishes.length > 0) {
             const wish = wishes.find(w => w.id == wishId);
             if (wish) {
                 showCelebration(wish);
-            } else {
-                displayWishes();
-                updateStats();
+                return;
             }
-        } else {
-            displayWishes();
-            updateStats();
         }
+        
+        displayWishes();
+        updateStats();
     </script>
 </body>
 </html>
