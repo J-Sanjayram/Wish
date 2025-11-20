@@ -146,10 +146,16 @@ function showCelebration(wish) {
 const urlParams = new URLSearchParams(window.location.search);
 const wishId = urlParams.get('wish');
 
-if (wishId && wishes.length > 0) {
+if (wishId) {
     const wish = wishes.find(w => w.id == wishId);
     if (wish) {
         showCelebration(wish);
+    } else {
+        showCelebration({
+            to: 'Friend',
+            message: 'Wishing you a wonderful birthday filled with happiness and joy!',
+            from: 'Someone Special'
+        });
     }
 } else {
     displayWishes();
