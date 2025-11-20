@@ -1,267 +1,184 @@
-// Production-ready JavaScript for Birthday Website
+let wishes = JSON.parse(localStorage.getItem('birthdayWishes')) || [];
 
-class BirthdayApp {
-    constructor() {
-        this.canvas = null;
-        this.ctx = null;
-        this.particles = [];
-        this.isAnimating = false;
-        this.countdownInterval = null;
-        
-        this.init();
+function createWish() {
+    const fromName = document.getElementById('fromName').value.trim();
+    const toName = document.getElementById('toName').value.trim();
+    const message = document.getElementById('message').value.trim();
+    
+    if (!fromName || !toName || !message) {
+        alert('Please fill in all fields');
+        return;
     }
-
-    init() {
-        // Wait for DOM to be fully loaded
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => this.setup());
-        } else {
-            this.setup();
-        }
-    }
-
-    setup() {
-        this.setupCanvas();
-        this.setupEventListeners();
-        this.startCountdown();
-        this.hideLoadingScreen();
-        
-        // Performance optimization: Use requestAnimationFrame
-        this.animate();
-    }
-
-    setupCanvas() {
-        this.canvas = document.getElementById('birthday');
-        if (!this.canvas) return;
-        
-        this.ctx = this.canvas.getContext('2d');
-        this.resizeCanvas();
-        
-        // Add resize listener
-        window.addEventListener('resize', () => this.resizeCanvas());
-    }
-
-    resizeCanvas() {
-        if (!this.canvas) return;
-        
-        this.canvas.width = window.innerWidth;
-        this.canvas.height = window.innerHeight;
-    }
-
-    setupEventListeners() {
-        // Heart click handler
-        const heartIcon = document.getElementById('i');
-        if (heartIcon) {
-            heartIcon.addEventListener('click', () => this.handleHeartClick());
-            heartIcon.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    this.handleHeartClick();
-                }
-            });
-            heartIcon.setAttribute('tabindex', '0');
-            heartIcon.setAttribute('role', 'button');
-            heartIcon.setAttribute('aria-label', 'Start birthday animation');
-        }
-
-        // Error handling for missing elements
-        this.validateElements();
-    }
-
-    validateElements() {
-        const requiredElements = ['container', 'birthday', 'svg-overlay'];
-        const missingElements = requiredElements.filter(id => !document.getElementById(id));
-        
-        if (missingElements.length > 0) {
-            console.warn('Missing elements:', missingElements);
-        }
-    }
-
-    handleHeartClick() {
-        try {
-            this.back();
-            this.startAnimation();
-        } catch (error) {
-            console.error('Error in heart click handler:', error);
-        }
-    }
-
-    back() {
-        const backDiv = document.getElementById('back');
-        const container = document.getElementById('container');
-        
-        if (backDiv && container) {
-            backDiv.style.display = 'none';
-            container.style.display = 'block';
-        }
-    }
-
-    startAnimation() {
-        const heartIcon = document.getElementById('i');
-        if (heartIcon) {
-            heartIcon.classList.add('active');
-            
-            // Remove class after animation completes
-            setTimeout(() => {
-                heartIcon.classList.remove('active');
-            }, 6000);
-        }
-        
-        this.createParticles();
-        this.isAnimating = true;
-    }
-
-    createParticles() {
-        const colors = ['#ff0062', '#00FF00', '#00ffff', '#ff0080', '#ffff00'];
-        
-        for (let i = 0; i < 50; i++) {
-            this.particles.push({
-                x: Math.random() * this.canvas.width,
-                y: Math.random() * this.canvas.height,
-                vx: (Math.random() - 0.5) * 4,
-                vy: (Math.random() - 0.5) * 4,
-                color: colors[Math.floor(Math.random() * colors.length)],
-                size: Math.random() * 3 + 1,
-                life: 1.0,
-                decay: Math.random() * 0.02 + 0.005
-            });
-        }
-    }
-
-    animate() {
-        if (!this.ctx) return;
-        
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        
-        if (this.isAnimating) {
-            this.updateParticles();
-            this.drawParticles();
-        }
-        
-        requestAnimationFrame(() => this.animate());
-    }
-
-    updateParticles() {
-        this.particles = this.particles.filter(particle => {
-            particle.x += particle.vx;
-            particle.y += particle.vy;
-            particle.life -= particle.decay;
-            
-            // Bounce off edges
-            if (particle.x <= 0 || particle.x >= this.canvas.width) particle.vx *= -1;
-            if (particle.y <= 0 || particle.y >= this.canvas.height) particle.vy *= -1;
-            
-            return particle.life > 0;
-        });
-        
-        if (this.particles.length === 0) {
-            this.isAnimating = false;
-        }
-    }
-
-    drawParticles() {
-        this.particles.forEach(particle => {
-            this.ctx.save();
-            this.ctx.globalAlpha = particle.life;
-            this.ctx.fillStyle = particle.color;
-            this.ctx.beginPath();
-            this.ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-            this.ctx.fill();
-            this.ctx.restore();
-        });
-    }
-
-    startCountdown() {
-        const countdownElement = document.getElementById('countdown');
-        if (!countdownElement) return;
-
-        // Set target date (you can modify this)
-        const targetDate = new Date();
-        targetDate.setHours(targetDate.getHours() + 1); // 1 hour from now as example
-
-        this.countdownInterval = setInterval(() => {
-            const now = new Date().getTime();
-            const distance = targetDate.getTime() - now;
-
-            if (distance < 0) {
-                clearInterval(this.countdownInterval);
-                countdownElement.innerHTML = "🎉 It's Time! 🎉";
-                return;
-            }
-
-            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-            countdownElement.innerHTML = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        }, 1000);
-    }
-
-    hideLoadingScreen() {
-        const loadingScreen = document.querySelector('.loading-screen');
-        if (loadingScreen) {
-            setTimeout(() => {
-                loadingScreen.style.opacity = '0';
-                setTimeout(() => {
-                    loadingScreen.style.display = 'none';
-                }, 500);
-            }, 1500);
-        }
-    }
-
-    // Cleanup method
-    destroy() {
-        if (this.countdownInterval) {
-            clearInterval(this.countdownInterval);
-        }
-        
-        window.removeEventListener('resize', this.resizeCanvas);
-        this.particles = [];
-        this.isAnimating = false;
-    }
+    
+    const wish = {
+        id: Date.now(),
+        from: fromName,
+        to: toName,
+        message: message,
+        date: new Date().toLocaleString(),
+        timestamp: Date.now()
+    };
+    
+    wishes.unshift(wish);
+    localStorage.setItem('birthdayWishes', JSON.stringify(wishes));
+    
+    const shareUrl = window.location.origin + window.location.pathname + '?wish=' + wish.id;
+    document.getElementById('share-link').textContent = shareUrl;
+    
+    document.getElementById('form-card').style.display = 'none';
+    document.getElementById('success-card').style.display = 'block';
+    
+    displayWishes();
+    updateStats();
 }
 
-// Global functions for backward compatibility
-let birthdayApp;
-
-function back() {
-    if (birthdayApp) {
-        birthdayApp.back();
-    }
-}
-
-function ani() {
-    if (birthdayApp) {
-        birthdayApp.startAnimation();
-    }
-}
-
-// Initialize the application
-document.addEventListener('DOMContentLoaded', () => {
-    birthdayApp = new BirthdayApp();
-});
-
-// Handle page visibility changes for performance
-document.addEventListener('visibilitychange', () => {
-    if (document.hidden && birthdayApp) {
-        birthdayApp.isAnimating = false;
-    }
-});
-
-// Error handling
-window.addEventListener('error', (event) => {
-    console.error('JavaScript error:', event.error);
-});
-
-// Service Worker registration for PWA capabilities
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
-            .then(registration => {
-                console.log('SW registered: ', registration);
-            })
-            .catch(registrationError => {
-                console.log('SW registration failed: ', registrationError);
-            });
+function copyLink() {
+    const link = document.getElementById('share-link').textContent;
+    navigator.clipboard.writeText(link).then(() => {
+        alert('Link copied to clipboard!');
     });
+}
+
+function shareWhatsApp() {
+    const link = document.getElementById('share-link').textContent;
+    const text = '🎉 You have a special birthday wish! Click to see: ' + link;
+    window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+}
+
+function createAnother() {
+    document.getElementById('form-card').style.display = 'block';
+    document.getElementById('success-card').style.display = 'none';
+    document.getElementById('fromName').value = '';
+    document.getElementById('toName').value = '';
+    document.getElementById('message').value = '';
+}
+
+function updateStats() {
+    const totalElement = document.getElementById('total-wishes');
+    if (totalElement) totalElement.textContent = wishes.length;
+}
+
+function displayWishes() {
+    const container = document.getElementById('wishes-container');
+    const countElement = document.getElementById('wishes-count');
+    
+    countElement.textContent = wishes.length + ' wishes shared';
+    
+    if (wishes.length === 0) {
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-birthday-cake"></i><h3>No wishes yet</h3><p>Be the first to create a birthday wish!</p></div>';
+        return;
+    }
+    
+    let html = '';
+    wishes.forEach(wish => {
+        html += '<div class="wish-card">';
+        html += '<div class="wish-header">';
+        html += '<div class="wish-from-to"><i class="fas fa-user"></i> ' + wish.from + ' <i class="fas fa-arrow-right" style="margin: 0 10px; color: #667eea;"></i> <i class="fas fa-birthday-cake"></i> ' + wish.to + '</div>';
+        html += '<div class="wish-date"><i class="fas fa-clock"></i> ' + wish.date + '</div>';
+        html += '</div>';
+        html += '<div class="wish-message">"' + wish.message + '"</div>';
+        html += '</div>';
+    });
+    container.innerHTML = html;
+}
+
+function showCelebration(wish) {
+    const celebrationHTML = `
+        <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57); background-size: 400% 400%; animation: gradientShift 3s ease infinite; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10000; overflow: hidden; padding: 20px;">
+            <canvas id="fireworks" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></canvas>
+            <div style="text-align: center; z-index: 2; color: white; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); animation: fadeInUp 2s ease; max-width: 90vw;">
+                <div style="font-size: clamp(2rem, 5vw, 3rem); margin-bottom: 10px;">✨🎉✨</div>
+                <h1 style="font-family: 'Brush Script MT', cursive; font-size: clamp(2.5rem, 8vw, 5rem); margin: 10px 0; animation: bounce 2s ease infinite;">Happy Birthday</h1>
+                <h2 style="font-family: 'Poppins', sans-serif; font-size: clamp(2rem, 6vw, 4rem); margin: 20px 0; font-weight: 700; animation: glow 2s ease-in-out infinite alternate;">${wish.to}!</h2>
+                <div style="background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); padding: 30px; border-radius: 20px; margin: 30px auto; max-width: 600px; animation: slideIn 1.5s ease;">
+                    <div style="font-size: clamp(1.5rem, 4vw, 2.5rem); margin-bottom: 15px;">🎂🎁🎂</div>
+                    <p style="font-size: clamp(1.2rem, 3vw, 1.8rem); font-style: italic; margin-bottom: 20px; line-height: 1.6;">"${wish.message}"</p>
+                    <p style="font-size: clamp(1rem, 2.5vw, 1.4rem); font-weight: 600;">- From ${wish.from} ❤️</p>
+                </div>
+                <div style="font-size: clamp(4rem, 10vw, 8rem); animation: cakeFloat 3s ease-in-out infinite; margin: 30px 0;">🎂</div>
+                <button onclick="location.reload()" style="background: rgba(255,255,255,0.3); border: 2px solid white; color: white; padding: 15px 30px; border-radius: 50px; font-size: 1.2rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; margin-top: 20px;" onmouseover="this.style.background='rgba(255,255,255,0.5)'" onmouseout="this.style.background='rgba(255,255,255,0.3)'">🎉 Create Another Wish</button>
+            </div>
+        </div>
+        <style>
+            @keyframes gradientShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+            @keyframes fadeInUp { from { opacity: 0; transform: translateY(50px); } to { opacity: 1; transform: translateY(0); } }
+            @keyframes bounce { 0%, 20%, 50%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-20px); } 60% { transform: translateY(-10px); } }
+            @keyframes glow { from { text-shadow: 0 0 20px rgba(255,255,255,0.5); } to { text-shadow: 0 0 30px rgba(255,255,255,0.8), 0 0 40px rgba(255,255,255,0.6); } }
+            @keyframes slideIn { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+            @keyframes cakeFloat { 0%, 100% { transform: translateY(0px) rotate(0deg); } 50% { transform: translateY(-20px) rotate(5deg); } }
+        </style>
+    `;
+    
+    document.body.innerHTML = celebrationHTML;
+    
+    setTimeout(() => {
+        const canvas = document.getElementById('fireworks');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        const particles = [];
+        
+        function createFirework() {
+            const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57', '#ff9ff3', '#54a0ff'];
+            for(let i = 0; i < 30; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    vx: (Math.random() - 0.5) * 8,
+                    vy: (Math.random() - 0.5) * 8,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    size: Math.random() * 4 + 1,
+                    life: 1
+                });
+            }
+        }
+        
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            for(let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life -= 0.01;
+                p.vy += 0.1;
+                
+                ctx.save();
+                ctx.globalAlpha = p.life;
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+                
+                if(p.life <= 0) particles.splice(i, 1);
+            }
+            
+            if(particles.length > 0) requestAnimationFrame(animate);
+        }
+        
+        setInterval(createFirework, 800);
+        createFirework();
+        animate();
+        
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    }, 500);
+}
+
+// Initialize
+const urlParams = new URLSearchParams(window.location.search);
+const wishId = urlParams.get('wish');
+
+if (wishId && wishes.length > 0) {
+    const wish = wishes.find(w => w.id == wishId);
+    if (wish) {
+        showCelebration(wish);
+    }
+} else {
+    displayWishes();
+    updateStats();
 }
