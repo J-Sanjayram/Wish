@@ -145,6 +145,7 @@
             document.getElementById('success-card').style.display = 'block';
             
             displayWishes();
+            updateStats();
         }
         
         function copyLink() {
@@ -166,6 +167,11 @@
             document.getElementById('fromName').value = '';
             document.getElementById('toName').value = '';
             document.getElementById('message').value = '';
+        }
+        
+        function updateStats() {
+            const totalElement = document.getElementById('total-wishes');
+            if (totalElement) totalElement.textContent = wishes.length;
         }
         
         function displayWishes() {
@@ -310,6 +316,7 @@
         }
         
         displayWishes();
+        updateStats();
     </script>
 </body>
 </html>
