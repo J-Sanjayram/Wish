@@ -15,9 +15,9 @@
     <div class="container">
         <div class="header">
             <h1><i class="fas fa-birthday-cake"></i> Birthday Wishes</h1>
-            <p>Create and share beautiful birthday messages worldwide </p>
+            <p>Create and share beautiful birthday messages worldwide 🌍</p>
             <div style="margin-top: 15px; color: rgba(255,255,255,0.8); font-size: 0.9rem;">
-                🎉 <span id="total-wishes"></span>1k Wishes Created Worldwide
+                🎉 <span id="total-wishes">0</span> Wishes Created Worldwide
             </div>
         </div>
 
@@ -135,7 +135,7 @@
 
         function updateStats() {
             const totalElement = document.getElementById('total-wishes');
-            if (totalElement) totalElement.textContent = 1000+wishes.length;
+            if (totalElement) totalElement.textContent = wishes.length;
         }
 
         function displayWishes() {
