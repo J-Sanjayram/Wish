@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎉 Birthday Wishes - React Edition</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'bounce-slow': 'bounce 3s infinite',
+                        'pulse-slow': 'pulse 4s infinite',
+                        'wiggle': 'wiggle 1s ease-in-out infinite',
+                        'sparkle': 'sparkle 2s linear infinite',
+                        'fadeInUp': 'fadeInUp 1s ease-out',
+                        'slideIn': 'slideIn 0.8s ease-out',
+                        'scaleIn': 'scaleIn 0.6s ease-out'
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-20px)' }
+                        },
+                        wiggle: {
+                            '0%, 100%': { transform: 'rotate(-3deg)' },
+                            '50%': { transform: 'rotate(3deg)' }
+                        },
+                        sparkle: {
+                            '0%, 100%': { opacity: '1', transform: 'scale(1)' },
+                            '50%': { opacity: '0.5', transform: 'scale(1.2)' }
+                        },
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(30px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' }
+                        },
+                        slideIn: {
+                            '0%': { opacity: '0', transform: 'translateX(-30px)' },
+                            '100%': { opacity: '1', transform: 'translateX(0)' }
+                        },
+                        scaleIn: {
+                            '0%': { opacity: '0', transform: 'scale(0.8)' },
+                            '100%': { opacity: '1', transform: 'scale(1)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+</head>
+<body class="font-['Poppins']">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyB2COksn4XP848YyHBMP6DFWi0BpiKaEOk",
+            authDomain: "datacentre-b253d.firebaseapp.com",
+            databaseURL: "https://datacentre-b253d-default-rtdb.firebaseio.com",
+            projectId: "datacentre-b253d",
+            storageBucket: "datacentre-b253d.appspot.com",
+            messagingSenderId: "383219520595",
+            appId: "1:383219520595:web:725ac6b91feaa0c962e2a6",
+            measurementId: "G-LKCK6RCX2Z"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+
+        // Animated Background Component
+        const AnimatedBackground = () => {
+            return (
+                <div className="fixed inset-0 bg-gradient-to-br from-purple-600 via-pink-500 to-red-500 overflow-hidden">
+                    <div className="absolute inset-0 opacity-30">
+                        {[...Array(20)].map((_, i) => (
+                            <div
+                                key={i}
+                                className="absolute animate-float"
+                                style={{
+                                    left: `${Math.random() * 100}%`,
+                                    top: `${Math.random() * 100}%`,
+                                    animationDelay: `${Math.random() * 6}s`,
+                                    fontSize: `${Math.random() * 20 + 10}px`
+                                }}
+                            >
+                                {['🎂', '🎁', '🎉', '✨', '🎈', '🌟'][Math.floor(Math.random() * 6)]}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+
+        // Header Component
+        const Header = () => {
+            return (
+                <div className="text-center mb-6 sm:mb-8 animate-fadeInUp">
+                    <div className="text-4xl sm:text-6xl mb-3 sm:mb-4 animate-bounce-slow">🎂</div>
+                    <h1 className="text-2xl sm:text-4xl font-bold text-white mb-2 drop-shadow-lg animate-slideIn">
+                        <i className="fas fa-birthday-cake mr-2 animate-wiggle"></i>Birthday Wishes
+                    </h1>
+                    <p className="text-white/80 text-base sm:text-lg animate-fadeInUp" style={{animationDelay: '0.3s'}}>
+                        Create magical birthday moments 🌍
+                    </p>
+                    <div className="mt-3 sm:mt-4 bg-white/20 backdrop-blur-sm rounded-full px-3 sm:px-4 py-2 inline-block animate-scaleIn" style={{animationDelay: '0.6s'}}>
+                        <span className="text-white font-medium text-sm sm:text-base">
+                            🎉 <span className="animate-sparkle">∞</span> Wishes Created
+                        </span>
+                    </div>
+                </div>
+            );
+        };
+
+        // Form Input Component
+        const FormInput = ({ icon, placeholder, value, onChange, type = "text", className = "" }) => {
+            return (
+                <div className="relative group">
+                    <i className={`${icon} absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 text-sm sm:text-base transition-colors duration-300 group-focus-within:scale-110`}></i>
+                    {type === "textarea" ? (
+                        <textarea
+                            placeholder={placeholder}
+                            value={value}
+                            onChange={onChange}
+                            className={`w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-3 sm:py-4 border-2 rounded-xl sm:rounded-2xl focus:outline-none transition-all duration-300 text-sm sm:text-base resize-none h-24 sm:h-32 group-focus-within:shadow-lg ${className}`}
+                        />
+                    ) : (
+                        <input
+                            type={type}
+                            placeholder={placeholder}
+                            value={value}
+                            onChange={onChange}
+                            className={`w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-3 sm:py-4 border-2 rounded-xl sm:rounded-2xl focus:outline-none transition-all duration-300 text-sm sm:text-base group-focus-within:shadow-lg ${className}`}
+                        />
+                    )}
+                </div>
+            );
+        };
+
+        // Image Upload Component
+        const ImageUpload = ({ onImageUpload, uploadedImage }) => {
+            const fileInputRef = useRef(null);
+
+            const handleClick = () => {
+                fileInputRef.current?.click();
+            };
+
+            return (
+                <div className="relative">
+                    <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={onImageUpload}
+                    />
+                    <div
+                        onClick={handleClick}
+                        className="border-2 border-dashed border-blue-300 rounded-xl sm:rounded-2xl p-4 sm:p-6 text-center cursor-pointer hover:border-blue-500 transition-all duration-300 bg-blue-50/30 hover:bg-blue-50/50 group"
+                    >
+                        {!uploadedImage ? (
+                            <div className="animate-fadeInUp">
+                                <i className="fas fa-camera text-2xl sm:text-3xl text-blue-500 mb-2 group-hover:animate-bounce"></i>
+                                <p className="text-blue-600 font-medium text-sm sm:text-base">Click to add photo</p>
+                                <span className="text-xs sm:text-sm text-gray-500">JPG, PNG up to 5MB</span>
+                            </div>
+                        ) : (
+                            <div className="animate-scaleIn">
+                                <img src={uploadedImage} className="w-20 h-20 sm:w-24 sm:h-24 rounded-full mx-auto object-cover border-4 border-white shadow-lg" />
+                                <p className="text-blue-600 font-medium mt-2 text-sm sm:text-base">Click to change</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        // Main Form Component
+        const WishForm = ({ onSubmit }) => {
+            const [formData, setFormData] = useState({
+                fromName: '',
+                toName: '',
+                message: '',
+                image: null
+            });
+
+            const handleInputChange = (field) => (e) => {
+                setFormData(prev => ({
+                    ...prev,
+                    [field]: e.target.value
+                }));
+            };
+
+            const handleImageUpload = (e) => {
+                const file = e.target.files[0];
+                if (file && file.size <= 5 * 1024 * 1024) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        setFormData(prev => ({
+                            ...prev,
+                            image: e.target.result
+                        }));
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    alert('Please select an image under 5MB');
+                }
+            };
+
+            const handleSubmit = () => {
+                if (!formData.fromName || !formData.toName || !formData.message) {
+                    alert('Please fill in all fields');
+                    return;
+                }
+                onSubmit(formData);
+            };
+
+            return (
+                <div className="bg-white/95 backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-2xl p-4 sm:p-8 mb-4 sm:mb-6 transform hover:scale-105 transition-all duration-300 animate-scaleIn">
+                    <div className="text-center mb-4 sm:mb-6">
+                        <div className="text-2xl sm:text-3xl mb-2 animate-bounce">🎁</div>
+                        <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Create Your Wish</h2>
+                    </div>
+                    
+                    <div className="space-y-4 sm:space-y-6">
+                        <div className="animate-slideIn" style={{animationDelay: '0.1s'}}>
+                            <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">From (Your Name)</label>
+                            <FormInput
+                                icon="fas fa-user text-purple-500"
+                                placeholder="Enter your name"
+                                value={formData.fromName}
+                                onChange={handleInputChange('fromName')}
+                                className="border-purple-200 focus:border-purple-500 bg-purple-50/50"
+                            />
+                        </div>
+
+                        <div className="animate-slideIn" style={{animationDelay: '0.2s'}}>
+                            <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">To (Birthday Person)</label>
+                            <FormInput
+                                icon="fas fa-birthday-cake text-pink-500"
+                                placeholder="Birthday person's name"
+                                value={formData.toName}
+                                onChange={handleInputChange('toName')}
+                                className="border-pink-200 focus:border-pink-500 bg-pink-50/50"
+                            />
+                        </div>
+
+                        <div className="animate-slideIn" style={{animationDelay: '0.3s'}}>
+                            <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">Photo (Optional)</label>
+                            <ImageUpload onImageUpload={handleImageUpload} uploadedImage={formData.image} />
+                        </div>
+
+                        <div className="animate-slideIn" style={{animationDelay: '0.4s'}}>
+                            <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">Birthday Message</label>
+                            <FormInput
+                                icon="fas fa-heart text-red-500"
+                                placeholder="Write your heartfelt birthday message..."
+                                value={formData.message}
+                                onChange={handleInputChange('message')}
+                                type="textarea"
+                                className="border-red-200 focus:border-red-500 bg-red-50/50"
+                            />
+                        </div>
+
+                        <button
+                            onClick={handleSubmit}
+                            className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold py-3 sm:py-4 px-4 sm:px-6 rounded-xl sm:rounded-2xl hover:from-purple-700 hover:to-pink-700 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl text-sm sm:text-base animate-scaleIn"
+                            style={{animationDelay: '0.5s'}}
+                        >
+                            <i className="fas fa-paper-plane mr-2 animate-bounce"></i>Create & Share Wish 🎉
+                        </button>
+                    </div>
+                </div>
+            );
+        };
+
+        // Success Card Component
+        const SuccessCard = ({ shareUrl, onCopyLink, onShareWhatsApp, onCreateAnother }) => {
+            return (
+                <div className="bg-white/95 backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-2xl p-4 sm:p-8 animate-scaleIn">
+                    <div className="text-center">
+                        <div className="text-4xl sm:text-5xl mb-4 animate-bounce">✨</div>
+                        <h3 className="text-xl sm:text-2xl font-bold text-green-600 mb-4 animate-fadeInUp">
+                            <i className="fas fa-check-circle mr-2"></i>Wish Created!
+                        </h3>
+                        <p className="text-gray-700 mb-6 text-sm sm:text-base animate-fadeInUp" style={{animationDelay: '0.2s'}}>
+                            Share this magical link:
+                        </p>
+                        
+                        <div className="bg-gray-100 rounded-xl sm:rounded-2xl p-3 sm:p-4 mb-6 break-all text-xs sm:text-sm font-mono animate-slideIn" style={{animationDelay: '0.3s'}}>
+                            {shareUrl}
+                        </div>
+                        
+                        <div className="space-y-2 sm:space-y-3">
+                            <button
+                                onClick={onCopyLink}
+                                className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2.5 sm:py-3 px-4 sm:px-6 rounded-xl sm:rounded-2xl transition-all duration-300 text-sm sm:text-base transform hover:scale-105 animate-slideIn"
+                                style={{animationDelay: '0.4s'}}
+                            >
+                                <i className="fas fa-copy mr-2"></i>Copy Link
+                            </button>
+                            <button
+                                onClick={onShareWhatsApp}
+                                className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-2.5 sm:py-3 px-4 sm:px-6 rounded-xl sm:rounded-2xl transition-all duration-300 text-sm sm:text-base transform hover:scale-105 animate-slideIn"
+                                style={{animationDelay: '0.5s'}}
+                            >
+                                <i className="fab fa-whatsapp mr-2"></i>Share on WhatsApp
+                            </button>
+                            <button
+                                onClick={onCreateAnother}
+                                className="w-full bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2.5 sm:py-3 px-4 sm:px-6 rounded-xl sm:rounded-2xl transition-all duration-300 text-sm sm:text-base transform hover:scale-105 animate-slideIn"
+                                style={{animationDelay: '0.6s'}}
+                            >
+                                <i className="fas fa-plus mr-2"></i>Create Another
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // Fireworks Component
+        const Fireworks = () => {
+            const canvasRef = useRef(null);
+
+            useEffect(() => {
+                const canvas = canvasRef.current;
+                const ctx = canvas.getContext('2d');
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                
+                const particles = [];
+                
+                const createFirework = () => {
+                    const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57', '#ff9ff3', '#54a0ff'];
+                    for(let i = 0; i < 30; i++) {
+                        particles.push({
+                            x: Math.random() * canvas.width,
+                            y: Math.random() * canvas.height,
+                            vx: (Math.random() - 0.5) * 8,
+                            vy: (Math.random() - 0.5) * 8,
+                            color: colors[Math.floor(Math.random() * colors.length)],
+                            size: Math.random() * 4 + 1,
+                            life: 1
+                        });
+                    }
+                };
+                
+                const animate = () => {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    
+                    for(let i = particles.length - 1; i >= 0; i--) {
+                        const p = particles[i];
+                        p.x += p.vx;
+                        p.y += p.vy;
+                        p.life -= 0.01;
+                        p.vy += 0.1;
+                        
+                        ctx.save();
+                        ctx.globalAlpha = p.life;
+                        ctx.fillStyle = p.color;
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.restore();
+                        
+                        if(p.life <= 0) particles.splice(i, 1);
+                    }
+                    
+                    if(particles.length > 0) requestAnimationFrame(animate);
+                };
+                
+                const interval = setInterval(createFirework, 800);
+                createFirework();
+                animate();
+                
+                const handleResize = () => {
+                    canvas.width = window.innerWidth;
+                    canvas.height = window.innerHeight;
+                };
+                
+                window.addEventListener('resize', handleResize);
+                
+                return () => {
+                    clearInterval(interval);
+                    window.removeEventListener('resize', handleResize);
+                };
+            }, []);
+
+            return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none" />;
+        };
+
+        // Celebration Screen Component
+        const CelebrationScreen = ({ wish }) => {
+            const decodeHtml = (html) => {
+                const txt = document.createElement('textarea');
+                txt.innerHTML = html;
+                return txt.value;
+            };
+
+            const decodedMessage = decodeHtml(wish.message);
+            const decodedFrom = decodeHtml(wish.from);
+            const decodedTo = decodeHtml(wish.to);
+
+            return (
+                <div className="fixed inset-0 bg-gradient-to-br from-purple-600 via-pink-500 to-red-500 flex items-center justify-center p-2 sm:p-4 overflow-hidden">
+                    <Fireworks />
+                    
+                    <div className="relative z-10 text-center text-white max-w-xs sm:max-w-4xl mx-auto">
+                        <div className="text-4xl sm:text-6xl mb-4 sm:mb-6 animate-bounce">✨🎉✨</div>
+                        
+                        {wish.imageUrl && (
+                            <div className="mb-6 sm:mb-8 animate-pulse">
+                                <img 
+                                    src={wish.imageUrl} 
+                                    className="w-32 h-32 sm:w-48 sm:h-48 rounded-full mx-auto object-cover border-4 sm:border-8 border-white/80 shadow-2xl animate-scaleIn" 
+                                    alt="Birthday Person" 
+                                />
+                            </div>
+                        )}
+                        
+                        <h1 className="text-4xl sm:text-6xl md:text-8xl font-bold mb-3 sm:mb-4 bg-gradient-to-r from-yellow-300 to-pink-300 bg-clip-text text-transparent drop-shadow-2xl animate-bounce" style={{fontFamily: 'Brush Script MT, cursive'}}>
+                            Happy Birthday
+                        </h1>
+                        
+                        <h2 className="text-2xl sm:text-4xl md:text-6xl font-bold mb-6 sm:mb-8 text-white drop-shadow-lg animate-pulse">
+                            {decodedTo}!
+                        </h2>
+                        
+                        <div className="bg-white/20 backdrop-blur-lg rounded-2xl sm:rounded-3xl p-4 sm:p-8 mb-6 sm:mb-8 border border-white/30 shadow-2xl animate-fadeInUp">
+                            <div className="text-2xl sm:text-4xl mb-3 sm:mb-4 animate-wiggle">🎂🎁🎂</div>
+                            <p className="text-base sm:text-xl md:text-2xl italic mb-4 sm:mb-6 leading-relaxed text-white/95">
+                                "{decodedMessage}"
+                            </p>
+                            <p className="text-sm sm:text-lg md:text-xl font-semibold text-yellow-200">
+                                - From {decodedFrom} ❤️
+                            </p>
+                        </div>
+                        
+                        <div className="text-6xl sm:text-8xl mb-6 sm:mb-8 animate-bounce">🎂</div>
+                        
+                        <button
+                            onClick={() => window.location.href = window.location.origin + window.location.pathname}
+                            className="bg-white/20 backdrop-blur-sm border-2 border-white text-white font-bold py-3 sm:py-4 px-6 sm:px-8 rounded-full text-base sm:text-xl hover:bg-white/30 transform hover:scale-110 transition-all duration-300 shadow-lg animate-scaleIn"
+                        >
+                            🎉 Create Another Wish
+                        </button>
+                    </div>
+                </div>
+            );
+        };
+
+        // Main App Component
+        const App = () => {
+            const [currentView, setCurrentView] = useState('form');
+            const [shareUrl, setShareUrl] = useState('');
+            const [celebrationWish, setCelebrationWish] = useState(null);
+
+            useEffect(() => {
+                const urlParams = new URLSearchParams(window.location.search);
+                const wishId = urlParams.get('wish');
+
+                if (wishId) {
+                    db.collection('wishes').doc(wishId).get()
+                        .then(doc => {
+                            if (doc.exists) {
+                                setCelebrationWish(doc.data());
+                                setCurrentView('celebration');
+                            } else {
+                                setCelebrationWish({
+                                    to: 'Friend',
+                                    message: 'Wishing you a wonderful birthday filled with happiness and joy!',
+                                    from: 'Someone Special'
+                                });
+                                setCurrentView('celebration');
+                            }
+                        })
+                        .catch(() => {
+                            setCelebrationWish({
+                                to: 'Friend',
+                                message: 'Wishing you a wonderful birthday filled with happiness and joy!',
+                                from: 'Someone Special'
+                            });
+                            setCurrentView('celebration');
+                        });
+                }
+            }, []);
+
+            const compressImage = (base64, maxWidth = 400) => {
+                return new Promise((resolve) => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    const img = new Image();
+                    
+                    img.onload = function() {
+                        canvas.width = maxWidth;
+                        canvas.height = maxWidth;
+                        ctx.drawImage(img, 0, 0, maxWidth, maxWidth);
+                        resolve(canvas.toDataURL('image/jpeg', 0.7));
+                    };
+                    img.src = base64;
+                });
+            };
+
+            const dataURLtoBlob = (dataURL) => {
+                const arr = dataURL.split(',');
+                const mime = arr[0].match(/:(.*?);/)[1];
+                const bstr = atob(arr[1]);
+                let n = bstr.length;
+                const u8arr = new Uint8Array(n);
+                while (n--) {
+                    u8arr[n] = bstr.charCodeAt(n);
+                }
+                return new Blob([u8arr], { type: mime });
+            };
+
+            const uploadImageToFirebase = async (imageBlob, wishId) => {
+                const storageRef = storage.ref(`wish-images/${wishId}.jpg`);
+                const snapshot = await storageRef.put(imageBlob);
+                return await snapshot.ref.getDownloadURL();
+            };
+
+            const handleFormSubmit = async (formData) => {
+                const wishId = Date.now().toString();
+                let imageUrl = null;
+                
+                if (formData.image) {
+                    try {
+                        const compressedImage = await compressImage(formData.image, 400);
+                        const imageBlob = dataURLtoBlob(compressedImage);
+                        imageUrl = await uploadImageToFirebase(imageBlob, wishId);
+                    } catch (error) {
+                        console.log('Error uploading image:', error);
+                    }
+                }
+                
+                const wish = {
+                    id: wishId,
+                    from: formData.fromName,
+                    to: formData.toName,
+                    message: formData.message,
+                    imageUrl: imageUrl,
+                    date: new Date().toLocaleString(),
+                    timestamp: Date.now()
+                };
+                
+                try {
+                    await db.collection('wishes').doc(wishId).set(wish);
+                    const url = window.location.origin + window.location.pathname + '?wish=' + wishId;
+                    setShareUrl(url);
+                    setCurrentView('success');
+                } catch (error) {
+                    alert('Error creating wish. Please try again.');
+                    console.error('Error:', error);
+                }
+            };
+
+            const handleCopyLink = () => {
+                navigator.clipboard.writeText(shareUrl).then(() => {
+                    alert('Link copied to clipboard!');
+                });
+            };
+
+            const handleShareWhatsApp = () => {
+                const text = '🎉 You have a special birthday wish! Click to see: ' + shareUrl;
+                window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+            };
+
+            const handleCreateAnother = () => {
+                setCurrentView('form');
+                setShareUrl('');
+            };
+
+            if (currentView === 'celebration' && celebrationWish) {
+                return <CelebrationScreen wish={celebrationWish} />;
+            }
+
+            return (
+                <>
+                    <AnimatedBackground />
+                    <div className="relative z-10 min-h-screen flex items-center justify-center p-2 sm:p-4">
+                        <div className="w-full max-w-sm sm:max-w-md">
+                            <Header />
+                            
+                            {currentView === 'form' && (
+                                <WishForm onSubmit={handleFormSubmit} />
+                            )}
+                            
+                            {currentView === 'success' && (
+                                <SuccessCard
+                                    shareUrl={shareUrl}
+                                    onCopyLink={handleCopyLink}
+                                    onShareWhatsApp={handleShareWhatsApp}
+                                    onCreateAnother={handleCreateAnother}
+                                />
+                            )}
+                        </div>
+                    </div>
+                </>
+            );
+        };
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>
