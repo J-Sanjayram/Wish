@@ -1,7 +1,7 @@
 const fs = require('fs').promises;
 const path = require('path');
 
-const WISHES_FILE = path.join(__dirname, '../../wishes.json');
+const WISHES_DIR = '/tmp/wishes';
 
 exports.handler = async (event, context) => {
   const headers = {
@@ -14,21 +14,18 @@ exports.handler = async (event, context) => {
     return { statusCode: 200, headers, body: '' };
   }
 
+  try {
+    await fs.mkdir(WISHES_DIR, { recursive: true });
+  } catch (error) {
+    // Directory already exists
+  }
+
   if (event.httpMethod === 'POST') {
     try {
       const wish = JSON.parse(event.body);
+      const filePath = path.join(WISHES_DIR, `${wish.id}.json`);
       
-      let wishes = [];
-      try {
-        const data = await fs.readFile(WISHES_FILE, 'utf8');
-        wishes = JSON.parse(data);
-      } catch (error) {
-        wishes = [];
-      }
-      
-      wishes.unshift(wish);
-      
-      await fs.writeFile(WISHES_FILE, JSON.stringify(wishes, null, 2));
+      await fs.writeFile(filePath, JSON.stringify(wish));
       
       return {
         statusCode: 200,
@@ -48,19 +45,21 @@ exports.handler = async (event, context) => {
     const wishId = event.queryStringParameters?.id;
     if (wishId) {
       try {
-        const data = await fs.readFile(WISHES_FILE, 'utf8');
-        const wishes = JSON.parse(data);
-        const wish = wishes.find(w => w.id == wishId);
+        const filePath = path.join(WISHES_DIR, `${wishId}.json`);
+        const data = await fs.readFile(filePath, 'utf8');
+        const wish = JSON.parse(data);
         
-        if (wish) {
-          return {
-            statusCode: 200,
-            headers,
-            body: JSON.stringify(wish)
-          };
-        }
+        return {
+          statusCode: 200,
+          headers,
+          body: JSON.stringify(wish)
+        };
       } catch (error) {
-        console.log('File read error:', error);
+        return {
+          statusCode: 404,
+          headers,
+          body: JSON.stringify({ error: 'Wish not found' })
+        };
       }
     }
   }
@@ -68,6 +67,6 @@ exports.handler = async (event, context) => {
   return {
     statusCode: 404,
     headers,
-    body: JSON.stringify({ error: 'Wish not found' })
+    body: JSON.stringify({ error: 'Invalid request' })
   };
 };
