@@ -79,7 +79,31 @@ const App: React.FC = () => {
         canvas.width = maxWidth;
         canvas.height = maxWidth;
         ctx.drawImage(img, 0, 0, maxWidth, maxWidth);
-        resolve(canvas.toDataURL('image/jpeg', 0.7));
+        resolve(canvas.toDataURL('image/webp', 0.2));
+      };
+      
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        img.src = e.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const compressJourneyImage = (file: File): Promise<string> => {
+    return new Promise((resolve) => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d')!;
+      const img = new Image();
+      
+      img.onload = () => {
+        const maxWidth = 600;
+        const ratio = Math.min(maxWidth / img.width, maxWidth / img.height);
+        canvas.width = img.width * ratio;
+        canvas.height = img.height * ratio;
+        
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL('image/webp', 0.2));
       };
       
       const reader = new FileReader();
@@ -103,7 +127,7 @@ const App: React.FC = () => {
   };
 
   const uploadImageToFirebase = async (imageBlob: Blob, wishId: string): Promise<string> => {
-    const storageRef = ref(storage, `wish-images/${wishId}.jpg`);
+    const storageRef = ref(storage, `wish-images/${wishId}.webp`);
     const snapshot = await uploadBytes(storageRef, imageBlob);
     return await getDownloadURL(snapshot.ref);
   };
@@ -129,9 +153,9 @@ const App: React.FC = () => {
       
       if (formData.journeyImages.length > 0) {
         for (let i = 0; i < formData.journeyImages.length; i++) {
-          const compressedImage = await compressImage(formData.journeyImages[i], 600);
+          const compressedImage = await compressJourneyImage(formData.journeyImages[i]);
           const imageBlob = dataURLtoBlob(compressedImage);
-          const storageRef = ref(storage, `journey-images/${wishId}_${i}.jpg`);
+          const storageRef = ref(storage, `journey-images/${wishId}_${i}.webp`);
           const snapshot = await uploadBytes(storageRef, imageBlob);
           const url = await getDownloadURL(snapshot.ref);
           journeyImageUrls.push(url);
