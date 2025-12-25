@@ -115,39 +115,23 @@
             updateStats();
         }
         
-        function compressImage(base64, maxWidth = 200) {
+        function compressImage(base64, maxWidth = 80) {
             return new Promise((resolve) => {
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
                 const img = new Image();
                 
                 img.onload = function() {
-                    const ratio = Math.min(maxWidth / img.width, maxWidth / img.height);
-                    canvas.width = img.width * ratio;
-                    canvas.height = img.height * ratio;
-                    
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    resolve(canvas.toDataURL('image/jpeg', 0.7));
+                    canvas.width = maxWidth;
+                    canvas.height = maxWidth;
+                    ctx.drawImage(img, 0, 0, maxWidth, maxWidth);
+                    resolve(canvas.toDataURL('image/jpeg', 0.3));
                 };
                 img.src = base64;
             });
         }
         
-        function saveWishGlobally(wish) {
-            wishes.unshift(wish);
-            localStorage.setItem('birthdayWishes', JSON.stringify(wishes));
-            
-            let shareUrl = window.location.origin + window.location.pathname + '?f=' + encodeURIComponent(wish.from) + '&t=' + encodeURIComponent(wish.to) + '&m=' + encodeURIComponent(wish.message) + '&i=' + wish.id;
-            
-            if (wish.image) {
-                const compressedImage = wish.image.substring(0, 2000);
-                shareUrl += '&img=' + encodeURIComponent(compressedImage);
-            }
-            
-            return shareUrl;
-        }
-
-        let uploadedImage = null;
+let uploadedImage = null;
 
         function handleImageUpload(event) {
             const file = event.target.files[0];
@@ -175,9 +159,9 @@
                 return;
             }
             
-            let finalImage = uploadedImage;
+            let finalImage = null;
             if (uploadedImage) {
-                finalImage = await compressImage(uploadedImage);
+                finalImage = await compressImage(uploadedImage, 80);
             }
             
             const wish = {
@@ -190,9 +174,16 @@
                 timestamp: Date.now()
             };
             
-            const shareUrl = saveWishGlobally(wish);
-            document.getElementById('share-link').textContent = shareUrl;
+            wishes.unshift(wish);
+            localStorage.setItem('birthdayWishes', JSON.stringify(wishes));
             
+            let shareUrl = window.location.origin + window.location.pathname + '?f=' + encodeURIComponent(wish.from) + '&t=' + encodeURIComponent(wish.to) + '&m=' + encodeURIComponent(wish.message) + '&i=' + wish.id;
+            
+            if (finalImage) {
+                shareUrl += '&img=' + encodeURIComponent(finalImage);
+            }
+            
+            document.getElementById('share-link').textContent = shareUrl;
             document.getElementById('form-card').style.display = 'none';
             document.getElementById('success-card').style.display = 'block';
             
