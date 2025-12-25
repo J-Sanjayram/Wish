@@ -47,7 +47,7 @@ const MusicSelector: React.FC<MusicSelectorProps> = ({ onSongSelect, selectedSon
     setIsLoading(true);
     try {
       // Use direct API call for now since Netlify function isn't deployed
-      const response = await fetch(`${process.env.REACT_APP_MUSIC_API_BASE_URL}/search?query=${encodeURIComponent(query)}`);
+      const response = await fetch(`https://saavn.sumit.co/api/search?query=${encodeURIComponent(query)}`);
       
       if (!response.ok) {
         throw new Error('API request failed');
@@ -59,21 +59,21 @@ const MusicSelector: React.FC<MusicSelectorProps> = ({ onSongSelect, selectedSon
         // Get song details with download URLs
         const songPromises = data.data.songs.results.slice(0, 5).map(async (song: any) => {
           try {
-            const detailResponse = await fetch(`${process.env.REACT_APP_MUSIC_API_BASE_URL}/songs/${song.id}`);
+            const detailResponse = await fetch(`https://saavn.sumit.co/api/songs/${song.id}`);
             const detailData = await detailResponse.json();
             return {
               id: song.id,
               title: cleanText(song.title),
               artist: cleanText(song.primaryArtists || song.singers),
-              previewUrl: detailData.data[0]?.downloadUrl?.[4]?.url || detailData.data[0]?.downloadUrl?.[3]?.url || detailData.data[0]?.downloadUrl?.[2]?.url || detailData.data[0]?.downloadUrl?.[1]?.url || detailData.data[0]?.downloadUrl?.[0]?.url || '',
+              previewUrl: detailData.data[0]?.downloadUrl?.[1]?.url || detailData.data[0]?.downloadUrl?.[0]?.url || '',
               duration: 180,
               image: song.image[2]?.url || song.image[1]?.url || song.image[0]?.url
             };
           } catch {
             return {
               id: song.id,
-              title: cleanText(song.title),
-              artist: cleanText(song.primaryArtists || song.singers),
+              title: song.title,
+              artist: song.primaryArtists || song.singers,
               previewUrl: '',
               duration: 180,
               image: song.image[2]?.url || song.image[1]?.url || song.image[0]?.url
@@ -264,30 +264,18 @@ const MusicSelector: React.FC<MusicSelectorProps> = ({ onSongSelect, selectedSon
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Start Time (seconds)
                   </label>
-                  <div className="relative">
-                    <input
-                      type="range"
-                      min="0"
-                      max={Math.max(0, editingSong.duration - 30)}
-                      value={startTime}
-                      onChange={(e) => handleStartTimeChange(Number(e.target.value))}
-                      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
-                      style={{
-                        background: `linear-gradient(to right, #8b5cf6 0%, #8b5cf6 ${(startTime / Math.max(1, editingSong.duration - 30)) * 100}%, #e5e7eb ${(startTime / Math.max(1, editingSong.duration - 30)) * 100}%, #e5e7eb 100%)`
-                      }}
-                    />
-                    <div 
-                      className="absolute top-0 w-1 h-2 bg-purple-600 rounded-full pointer-events-none"
-                      style={{
-                        left: `${(startTime / Math.max(1, editingSong.duration - 30)) * 100}%`,
-                        transform: 'translateX(-50%)'
-                      }}
-                    />
-                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max={Math.max(0, editingSong.duration - 30)}
+                    value={startTime}
+                    onChange={(e) => handleStartTimeChange(Number(e.target.value))}
+                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                  />
                   <div className="flex justify-between text-sm text-gray-600 mt-1">
-                    <span>{Math.floor(startTime / 60)}:{(startTime % 60).toString().padStart(2, '0')}</span>
+                    <span>{startTime}s</span>
                     <span>30 second clip</span>
-                    <span>{Math.floor((startTime + 30) / 60)}:{((startTime + 30) % 60).toString().padStart(2, '0')}</span>
+                    <span>{startTime + 30}s</span>
                   </div>
                 </div>
 
