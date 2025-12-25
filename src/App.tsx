@@ -15,14 +15,16 @@ export interface Wish {
   to: string;
   message: string;
   imageUrl?: string;
+  journeyImages?: string[];
   date: string;
   timestamp: number;
 }
 
 const App: React.FC = () => {
-  const [currentView, setCurrentView] = useState<'form' | 'success' | 'celebration'>('form');
+  const [currentView, setCurrentView] = useState<'form' | 'success' | 'celebration' | 'loading'>('loading');
   const [shareUrl, setShareUrl] = useState('');
   const [celebrationWish, setCelebrationWish] = useState<Wish | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -62,6 +64,8 @@ const App: React.FC = () => {
       };
       
       fetchWish();
+    } else {
+      setCurrentView('form');
     }
   }, []);
 
@@ -109,31 +113,42 @@ const App: React.FC = () => {
     toName: string;
     message: string;
     image: File | null;
+    journeyImages: File[];
   }) => {
+    setIsSubmitting(true);
     const wishId = Date.now().toString();
     let imageUrl = '';
+    let journeyImageUrls: string[] = [];
     
-    if (formData.image) {
-      try {
+    try {
+      if (formData.image) {
         const compressedImage = await compressImage(formData.image, 400);
         const imageBlob = dataURLtoBlob(compressedImage);
         imageUrl = await uploadImageToFirebase(imageBlob, wishId);
-      } catch (error) {
-        console.log('Error uploading image:', error);
       }
-    }
-    
-    const wish: Wish = {
-      id: wishId,
-      from: formData.fromName,
-      to: formData.toName,
-      message: formData.message,
-      imageUrl: imageUrl,
-      date: new Date().toLocaleString(),
-      timestamp: Date.now()
-    };
-    
-    try {
+      
+      if (formData.journeyImages.length > 0) {
+        for (let i = 0; i < formData.journeyImages.length; i++) {
+          const compressedImage = await compressImage(formData.journeyImages[i], 600);
+          const imageBlob = dataURLtoBlob(compressedImage);
+          const storageRef = ref(storage, `journey-images/${wishId}_${i}.jpg`);
+          const snapshot = await uploadBytes(storageRef, imageBlob);
+          const url = await getDownloadURL(snapshot.ref);
+          journeyImageUrls.push(url);
+        }
+      }
+      
+      const wish: Wish = {
+        id: wishId,
+        from: formData.fromName,
+        to: formData.toName,
+        message: formData.message,
+        imageUrl: imageUrl,
+        journeyImages: journeyImageUrls,
+        date: new Date().toLocaleString(),
+        timestamp: Date.now()
+      };
+      
       await setDoc(doc(db, 'wishes', wishId), wish);
       const url = window.location.origin + window.location.pathname + '?wish=' + wishId;
       setShareUrl(url);
@@ -141,6 +156,8 @@ const App: React.FC = () => {
     } catch (error) {
       alert('Error creating wish. Please try again.');
       console.error('Error:', error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -160,6 +177,20 @@ const App: React.FC = () => {
     setShareUrl('');
   };
 
+  if (currentView === 'loading') {
+    return (
+      <>
+        <AnimatedBackground />
+        <div className="relative z-10 min-h-screen flex items-center justify-center">
+          <div className="text-center text-white">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-white mx-auto mb-4"></div>
+            <p className="text-xl font-semibold">Loading your birthday wish...</p>
+          </div>
+        </div>
+      </>
+    );
+  }
+
   if (currentView === 'celebration' && celebrationWish) {
     return <CelebrationScreen wish={celebrationWish} />;
   }
@@ -177,7 +208,7 @@ const App: React.FC = () => {
           <Header />
           
           {currentView === 'form' && (
-            <WishForm onSubmit={handleFormSubmit} />
+            <WishForm onSubmit={handleFormSubmit} isSubmitting={isSubmitting} />
           )}
           
           {currentView === 'success' && (
