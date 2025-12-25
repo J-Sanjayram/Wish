@@ -328,17 +328,21 @@ const CelebrationScreen: React.FC<CelebrationScreenProps> = ({ wish }) => {
           transition={{ delay: 0.9, duration: 0.8 }}
         >
           {wish.journeyImages && wish.journeyImages.length > 0 ? (
-            <div className="relative h-32 sm:h-48">
-              <motion.img
-                key={currentImageIndex}
-                src={wish.journeyImages[currentImageIndex]}
-                className="w-full h-full object-cover rounded-2xl sm:rounded-3xl"
-                initial={{ x: 100, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                exit={{ x: -100, opacity: 0 }}
-                transition={{ duration: 0.6 }}
-                alt={`Journey ${currentImageIndex + 1}`}
-              />
+            <div className="relative h-32 sm:h-48 overflow-hidden">
+              <motion.div
+                className="flex w-full h-full"
+                animate={{ x: -currentImageIndex * 100 + '%' }}
+                transition={{ duration: 0.6, ease: "easeInOut" }}
+              >
+                {wish.journeyImages.map((image, index) => (
+                  <img
+                    key={index}
+                    src={image}
+                    className="w-full h-full object-cover rounded-2xl sm:rounded-3xl flex-shrink-0"
+                    alt={`Journey ${index + 1}`}
+                  />
+                ))}
+              </motion.div>
               {wish.journeyImages.length > 1 && (
                 <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-1">
                   {wish.journeyImages.map((_, index) => (
