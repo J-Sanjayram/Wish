@@ -125,6 +125,28 @@
             localStorage.setItem('birthdayWishes', JSON.stringify(localWishes));
             wishes.unshift(wish);
         }
+        
+        async function saveWishToFile(wish) {
+            try {
+                const currentWishes = await fetch('./wishes.json').then(r => r.json()).catch(() => []);
+                currentWishes.unshift(wish);
+                
+                const blob = new Blob([JSON.stringify(currentWishes, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'wishes.json';
+                a.style.display = 'none';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                alert('Please upload the downloaded wishes.json file to your GitHub repository to make this wish globally accessible.');
+            } catch (error) {
+                console.log('Could not save to file');
+            }
+        }
 
         let uploadedImage = null;
 
@@ -165,9 +187,9 @@
             };
             
             saveWishLocally(wish);
+            await saveWishToFile(wish);
             
-            const wishData = btoa(JSON.stringify(wish));
-            const shareUrl = window.location.origin + window.location.pathname + '?data=' + wishData;
+            const shareUrl = window.location.origin + window.location.pathname + '?wish=' + wish.id;
             document.getElementById('share-link').textContent = shareUrl;
             
             document.getElementById('form-card').style.display = 'none';
@@ -294,36 +316,22 @@
         }
 
         const urlParams = new URLSearchParams(window.location.search);
-        const wishData = urlParams.get('data');
         const wishId = urlParams.get('wish');
 
-        if (wishData) {
-            try {
-                const wish = JSON.parse(atob(wishData));
-                showCelebration(wish);
-            } catch (error) {
-                showCelebration({
-                    to: 'Friend',
-                    message: 'Wishing you a wonderful birthday filled with happiness and joy!',
-                    from: 'Someone Special'
-                });
-            }
-        } else {
-            loadWishes().then(() => {
-                if (wishId) {
-                    const wish = wishes.find(w => w.id == wishId);
-                    if (wish) {
-                        showCelebration(wish);
-                    } else {
-                        showCelebration({
-                            to: 'Friend',
-                            message: 'Wishing you a wonderful birthday filled with happiness and joy!',
-                            from: 'Someone Special'
-                        });
-                    }
+        loadWishes().then(() => {
+            if (wishId) {
+                const wish = wishes.find(w => w.id == wishId);
+                if (wish) {
+                    showCelebration(wish);
+                } else {
+                    showCelebration({
+                        to: 'Friend',
+                        message: 'Wishing you a wonderful birthday filled with happiness and joy!',
+                        from: 'Someone Special'
+                    });
                 }
-            });
-        }
+            }
+        });
     </script>
 </body>
 </html>
