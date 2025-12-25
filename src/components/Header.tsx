@@ -4,20 +4,7 @@ import { motion } from 'framer-motion';
 const Header: React.FC = () => {
   return (
     <div className="text-center mb-6 sm:mb-8">
-      <motion.div 
-        className="text-4xl sm:text-6xl mb-3 sm:mb-4"
-        animate={{ 
-          y: [0, -10, 0],
-          rotate: [0, 5, -5, 0]
-        }}
-        transition={{ 
-          duration: 3,
-          repeat: Infinity,
-          ease: "easeInOut"
-        }}
-      >
-        🎂
-      </motion.div>
+      
       
       <motion.h1 
         className="text-2xl sm:text-4xl font-bold text-white mb-2 drop-shadow-lg"
