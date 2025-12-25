@@ -338,7 +338,7 @@ const CelebrationScreen: React.FC<CelebrationScreenProps> = ({ wish }) => {
                   <img
                     key={index}
                     src={image}
-                    className="w-full h-full object-cover rounded-2xl sm:rounded-3xl flex-shrink-0"
+                    className="w-full h-full object-none rounded-2xl sm:rounded-3xl flex-shrink-0 bg-black/10"
                     alt={`Journey ${index + 1}`}
                   />
                 ))}
