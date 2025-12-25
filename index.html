@@ -166,7 +166,8 @@
             
             saveWishLocally(wish);
             
-            const shareUrl = window.location.origin + window.location.pathname + '?wish=' + wish.id;
+            const wishData = btoa(JSON.stringify(wish));
+            const shareUrl = window.location.origin + window.location.pathname + '?data=' + wishData;
             document.getElementById('share-link').textContent = shareUrl;
             
             document.getElementById('form-card').style.display = 'none';
@@ -293,22 +294,36 @@
         }
 
         const urlParams = new URLSearchParams(window.location.search);
+        const wishData = urlParams.get('data');
         const wishId = urlParams.get('wish');
 
-        loadWishes().then(() => {
-            if (wishId) {
-                const wish = wishes.find(w => w.id == wishId);
-                if (wish) {
-                    showCelebration(wish);
-                } else {
-                    showCelebration({
-                        to: 'Friend',
-                        message: 'Wishing you a wonderful birthday filled with happiness and joy!',
-                        from: 'Someone Special'
-                    });
-                }
+        if (wishData) {
+            try {
+                const wish = JSON.parse(atob(wishData));
+                showCelebration(wish);
+            } catch (error) {
+                showCelebration({
+                    to: 'Friend',
+                    message: 'Wishing you a wonderful birthday filled with happiness and joy!',
+                    from: 'Someone Special'
+                });
             }
-        });
+        } else {
+            loadWishes().then(() => {
+                if (wishId) {
+                    const wish = wishes.find(w => w.id == wishId);
+                    if (wish) {
+                        showCelebration(wish);
+                    } else {
+                        showCelebration({
+                            to: 'Friend',
+                            message: 'Wishing you a wonderful birthday filled with happiness and joy!',
+                            from: 'Someone Special'
+                        });
+                    }
+                }
+            });
+        }
     </script>
 </body>
 </html>
