@@ -174,15 +174,20 @@ let uploadedImage = null;
                 timestamp: Date.now()
             };
             
+            try {
+                await fetch('/.netlify/functions/wishes', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(wish)
+                });
+            } catch (error) {
+                console.log('Using local storage fallback');
+            }
+            
             wishes.unshift(wish);
             localStorage.setItem('birthdayWishes', JSON.stringify(wishes));
             
-            let shareUrl = window.location.origin + window.location.pathname + '?f=' + encodeURIComponent(wish.from) + '&t=' + encodeURIComponent(wish.to) + '&m=' + encodeURIComponent(wish.message) + '&i=' + wish.id;
-            
-            if (finalImage) {
-                shareUrl += '&img=' + encodeURIComponent(finalImage);
-            }
-            
+            const shareUrl = window.location.origin + window.location.pathname + '?wish=' + wish.id;
             document.getElementById('share-link').textContent = shareUrl;
             document.getElementById('form-card').style.display = 'none';
             document.getElementById('success-card').style.display = 'block';
@@ -308,21 +313,36 @@ let uploadedImage = null;
         }
 
         const urlParams = new URLSearchParams(window.location.search);
-        const fromName = urlParams.get('f');
-        const toName = urlParams.get('t');
-        const message = urlParams.get('m');
-        const wishId = urlParams.get('i');
-        const imageData = urlParams.get('img');
+        const wishId = urlParams.get('wish');
 
-        if (fromName && toName && message) {
-            const wish = {
-                from: fromName,
-                to: toName,
-                message: message,
-                image: imageData,
-                id: wishId
-            };
-            showCelebration(wish);
+        if (wishId) {
+            fetch(`/.netlify/functions/wishes?id=${wishId}`)
+                .then(response => response.json())
+                .then(wish => {
+                    if (wish && !wish.error) {
+                        showCelebration(wish);
+                    } else {
+                        showCelebration({
+                            to: 'Friend',
+                            message: 'Wishing you a wonderful birthday filled with happiness and joy!',
+                            from: 'Someone Special'
+                        });
+                    }
+                })
+                .catch(() => {
+                    loadWishes().then(() => {
+                        const localWish = wishes.find(w => w.id == wishId);
+                        if (localWish) {
+                            showCelebration(localWish);
+                        } else {
+                            showCelebration({
+                                to: 'Friend',
+                                message: 'Wishing you a wonderful birthday filled with happiness and joy!',
+                                from: 'Someone Special'
+                            });
+                        }
+                    });
+                });
         } else {
             loadWishes();
         }
