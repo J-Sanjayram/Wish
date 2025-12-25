@@ -16,6 +16,13 @@ export interface Wish {
   message: string;
   imageUrl?: string;
   journeyImages?: string[];
+  song?: {
+    title: string;
+    artist: string;
+    previewUrl: string;
+    startTime: number;
+    duration: number;
+  };
   date: string;
   timestamp: number;
 }
@@ -138,6 +145,13 @@ const App: React.FC = () => {
     message: string;
     image: File | null;
     journeyImages: File[];
+    song?: {
+      title: string;
+      artist: string;
+      previewUrl: string;
+      startTime: number;
+      duration: number;
+    };
   }) => {
     setIsSubmitting(true);
     const wishId = Date.now().toString();
@@ -169,6 +183,7 @@ const App: React.FC = () => {
         message: formData.message,
         imageUrl: imageUrl,
         journeyImages: journeyImageUrls,
+        song: formData.song,
         date: new Date().toLocaleString(),
         timestamp: Date.now()
       };

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import MusicSelector from './MusicSelector';
 
 interface WishFormProps {
   onSubmit: (formData: {
@@ -8,6 +9,13 @@ interface WishFormProps {
     message: string;
     image: File | null;
     journeyImages: File[];
+    song?: {
+      title: string;
+      artist: string;
+      previewUrl: string;
+      startTime: number;
+      duration: number;
+    };
   }) => void;
   isSubmitting: boolean;
 }
@@ -18,7 +26,14 @@ const WishForm: React.FC<WishFormProps> = ({ onSubmit, isSubmitting }) => {
     toName: '',
     message: '',
     image: null as File | null,
-    journeyImages: [] as File[]
+    journeyImages: [] as File[],
+    song: undefined as {
+      title: string;
+      artist: string;
+      previewUrl: string;
+      startTime: number;
+      duration: number;
+    } | undefined
   });
 
   const [imagePreview, setImagePreview] = useState<string>('');
@@ -227,6 +242,18 @@ const WishForm: React.FC<WishFormProps> = ({ onSubmit, isSubmitting }) => {
               </motion.div>
             )}
           </motion.label>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, x: -30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.45 }}
+        >
+          <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">Background Music (Optional)</label>
+          <MusicSelector
+            onSongSelect={(song) => setFormData(prev => ({ ...prev, song }))}
+            selectedSong={formData.song}
+          />
         </motion.div>
 
         <motion.div

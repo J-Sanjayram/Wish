@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Wish } from '../App';
+import AudioPlayer from './AudioPlayer';
 
 interface CelebrationScreenProps {
   wish: Wish;
@@ -132,6 +133,8 @@ const CelebrationScreen: React.FC<CelebrationScreenProps> = ({ wish }) => {
         ease: "linear"
       }}
     >
+      {wish.song && <AudioPlayer song={wish.song} />}
+      
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none" />
       
       {/* Floating Balloons - Bottom Corners Only */}
