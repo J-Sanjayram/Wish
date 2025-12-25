@@ -99,20 +99,15 @@
     </div>
 
     <script>
-        const API_KEY = '$2a$10$8K9Z2J3X4Y5W6V7U8T9S0eQwErTyUiOpAsDfGhJkLzXcVbNmQwErT';
-        const BIN_ID = '676b8e2ead19ca34f8c8f123';
         let wishes = [];
         
         async function loadWishes() {
             try {
-                const response = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-                    headers: {
-                        'X-Master-Key': API_KEY
-                    }
-                });
+                const response = await fetch('https://api.github.com/gists/abc123def456');
                 if (response.ok) {
-                    const data = await response.json();
-                    wishes = data.record || [];
+                    const gist = await response.json();
+                    const content = gist.files['wishes.json'].content;
+                    wishes = JSON.parse(content);
                 }
             } catch (error) {
                 wishes = JSON.parse(localStorage.getItem('birthdayWishes')) || [];
@@ -120,22 +115,20 @@
             updateStats();
         }
         
-        async function saveWishGlobally(wish) {
+        function saveWishGlobally(wish) {
             wishes.unshift(wish);
             localStorage.setItem('birthdayWishes', JSON.stringify(wishes));
             
-            try {
-                await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Master-Key': API_KEY
-                    },
-                    body: JSON.stringify(wishes)
-                });
-            } catch (error) {
-                console.log('Using local storage fallback');
-            }
+            const wishData = {
+                from: wish.from,
+                to: wish.to,
+                message: wish.message,
+                id: wish.id,
+                date: wish.date
+            };
+            
+            const shareUrl = window.location.origin + window.location.pathname + '?f=' + encodeURIComponent(wish.from) + '&t=' + encodeURIComponent(wish.to) + '&m=' + encodeURIComponent(wish.message) + '&i=' + wish.id;
+            return shareUrl;
         }
 
         let uploadedImage = null;
@@ -176,9 +169,7 @@
                 timestamp: Date.now()
             };
             
-            await saveWishGlobally(wish);
-            
-            const shareUrl = window.location.origin + window.location.pathname + '?wish=' + wish.id;
+            const shareUrl = saveWishGlobally(wish);
             document.getElementById('share-link').textContent = shareUrl;
             
             document.getElementById('form-card').style.display = 'none';
@@ -305,22 +296,22 @@
         }
 
         const urlParams = new URLSearchParams(window.location.search);
-        const wishId = urlParams.get('wish');
+        const fromName = urlParams.get('f');
+        const toName = urlParams.get('t');
+        const message = urlParams.get('m');
+        const wishId = urlParams.get('i');
 
-        loadWishes().then(() => {
-            if (wishId) {
-                const wish = wishes.find(w => w.id == wishId);
-                if (wish) {
-                    showCelebration(wish);
-                } else {
-                    showCelebration({
-                        to: 'Friend',
-                        message: 'Wishing you a wonderful birthday filled with happiness and joy!',
-                        from: 'Someone Special'
-                    });
-                }
-            }
-        });
+        if (fromName && toName && message) {
+            const wish = {
+                from: fromName,
+                to: toName,
+                message: message,
+                id: wishId
+            };
+            showCelebration(wish);
+        } else {
+            loadWishes();
+        }
     </script>
 </body>
 </html>
