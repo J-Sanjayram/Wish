@@ -47,7 +47,7 @@ const MusicSelector: React.FC<MusicSelectorProps> = ({ onSongSelect, selectedSon
     setIsLoading(true);
     try {
       // Use direct API call for now since Netlify function isn't deployed
-      const response = await fetch(`https://saavn.sumit.co/api/search?query=${encodeURIComponent(query)}`);
+      const response = await fetch(`${process.env.REACT_APP_MUSIC_API_BASE_URL}/search?query=${encodeURIComponent(query)}`);
       
       if (!response.ok) {
         throw new Error('API request failed');
@@ -59,7 +59,7 @@ const MusicSelector: React.FC<MusicSelectorProps> = ({ onSongSelect, selectedSon
         // Get song details with download URLs
         const songPromises = data.data.songs.results.slice(0, 5).map(async (song: any) => {
           try {
-            const detailResponse = await fetch(`https://saavn.sumit.co/api/songs/${song.id}`);
+            const detailResponse = await fetch(`${process.env.REACT_APP_MUSIC_API_BASE_URL}/songs/${song.id}`);
             const detailData = await detailResponse.json();
             return {
               id: song.id,
