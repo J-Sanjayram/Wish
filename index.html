@@ -115,19 +115,35 @@
             updateStats();
         }
         
+        function compressImage(base64, maxWidth = 200) {
+            return new Promise((resolve) => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const img = new Image();
+                
+                img.onload = function() {
+                    const ratio = Math.min(maxWidth / img.width, maxWidth / img.height);
+                    canvas.width = img.width * ratio;
+                    canvas.height = img.height * ratio;
+                    
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    resolve(canvas.toDataURL('image/jpeg', 0.7));
+                };
+                img.src = base64;
+            });
+        }
+        
         function saveWishGlobally(wish) {
             wishes.unshift(wish);
             localStorage.setItem('birthdayWishes', JSON.stringify(wishes));
             
-            const wishData = {
-                from: wish.from,
-                to: wish.to,
-                message: wish.message,
-                id: wish.id,
-                date: wish.date
-            };
+            let shareUrl = window.location.origin + window.location.pathname + '?f=' + encodeURIComponent(wish.from) + '&t=' + encodeURIComponent(wish.to) + '&m=' + encodeURIComponent(wish.message) + '&i=' + wish.id;
             
-            const shareUrl = window.location.origin + window.location.pathname + '?f=' + encodeURIComponent(wish.from) + '&t=' + encodeURIComponent(wish.to) + '&m=' + encodeURIComponent(wish.message) + '&i=' + wish.id;
+            if (wish.image) {
+                const compressedImage = wish.image.substring(0, 2000);
+                shareUrl += '&img=' + encodeURIComponent(compressedImage);
+            }
+            
             return shareUrl;
         }
 
@@ -159,12 +175,17 @@
                 return;
             }
             
+            let finalImage = uploadedImage;
+            if (uploadedImage) {
+                finalImage = await compressImage(uploadedImage);
+            }
+            
             const wish = {
                 id: Date.now(),
                 from: fromName,
                 to: toName,
                 message: message,
-                image: uploadedImage,
+                image: finalImage,
                 date: new Date().toLocaleString(),
                 timestamp: Date.now()
             };
@@ -300,12 +321,14 @@
         const toName = urlParams.get('t');
         const message = urlParams.get('m');
         const wishId = urlParams.get('i');
+        const imageData = urlParams.get('img');
 
         if (fromName && toName && message) {
             const wish = {
                 from: fromName,
                 to: toName,
                 message: message,
+                image: imageData,
                 id: wishId
             };
             showCelebration(wish);
