@@ -173,7 +173,7 @@ const CelebrationScreen: React.FC<CelebrationScreenProps> = ({ wish }) => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
             >
-              Take the cake and make a wish!
+              Take the cake and get your wish!
             </motion.h2>
             <motion.button
               onClick={handleTakeCake}
@@ -210,7 +210,7 @@ const CelebrationScreen: React.FC<CelebrationScreenProps> = ({ wish }) => {
           ease: "linear"
         }}
       >
-        {wish.song && <AudioPlayer song={wish.song} wisherName={decodedFrom} />}
+        {wish.song && startCelebration && <AudioPlayer song={wish.song} wisherName={decodedFrom} />}
         
         <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none" />
         
