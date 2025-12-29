@@ -12,10 +12,14 @@ const CelebrationScreen: React.FC<CelebrationScreenProps> = ({ wish }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [showOverlay, setShowOverlay] = useState(true);
+  const [startCelebration, setStartCelebration] = useState(false);
 
   useEffect(() => {
-    setTimeout(() => setShowConfetti(true), 1500);
-  }, []);
+    if (startCelebration) {
+      setTimeout(() => setShowConfetti(true), 1500);
+    }
+  }, [startCelebration]);
 
   useEffect(() => {
     if (wish.journeyImages && wish.journeyImages.length > 1) {
@@ -108,6 +112,11 @@ const CelebrationScreen: React.FC<CelebrationScreenProps> = ({ wish }) => {
     return txt.value;
   };
 
+  const handleTakeCake = () => {
+    setShowOverlay(false);
+    setStartCelebration(true);
+  };
+
   const decodedMessage = decodeHtml(wish.message);
   const decodedFrom = decodeHtml(wish.from);
   const decodedTo = decodeHtml(wish.to);
@@ -141,6 +150,46 @@ const CelebrationScreen: React.FC<CelebrationScreenProps> = ({ wish }) => {
           }
         `}
       </style>
+      {showOverlay && (
+        <motion.div
+          className="fixed inset-0 bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center z-50"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+        >
+          <div className="text-center text-white">
+            <motion.div
+              className="text-8xl mb-6"
+              animate={{ 
+                scale: [1, 1.1, 1],
+                rotate: [0, 5, -5, 0]
+              }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              🎂
+            </motion.div>
+            <motion.h2
+              className="text-3xl font-bold mb-4"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+            >
+              Take the cake and make a wish!
+            </motion.h2>
+            <motion.button
+              onClick={handleTakeCake}
+              className="bg-white text-purple-600 px-8 py-4 rounded-full text-xl font-bold hover:bg-gray-100 transition-colors"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 1 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              🎂 Take Cake
+            </motion.button>
+          </div>
+        </motion.div>
+      )}
+      
       <motion.div 
         className="fixed inset-0 flex items-center justify-center overflow-hidden relative min-h-screen"
         animate={{
