@@ -57,7 +57,7 @@ const MusicSelector: React.FC<MusicSelectorProps> = ({ onSongSelect, selectedSon
       
       if (data.success && data.data.songs.results) {
         // Get song details with download URLs
-        const songPromises = data.data.songs.results.slice(0, 5).map(async (song: any) => {
+        const songPromises = data.data.songs.results.map(async (song: any) => {
           try {
             const detailResponse = await fetch(`${process.env.REACT_APP_MUSIC_API_BASE_URL}/songs/${song.id}`);
             const detailData = await detailResponse.json();

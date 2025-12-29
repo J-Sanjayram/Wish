@@ -89,10 +89,13 @@ const WishForm: React.FC<WishFormProps> = ({ onSubmit, isSubmitting }) => {
 
   const handleSubmit = () => {
     if (!formData.fromName || !formData.toName || !formData.message) {
-      alert('Please fill in all fields');
+      alert('Please fill in all required fields');
       return;
     }
-    onSubmit(formData);
+    onSubmit({
+      ...formData,
+      song: formData.song || undefined
+    });
   };
 
   return (

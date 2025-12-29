@@ -1,22 +1,23 @@
-// Firebase Storage Security Rules
-// Add these rules in Firebase Console > Storage > Rules
+// Firebase Storage Security Rules - No Authentication Required
+// Auto-delete after 24 hours
 
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
-    // Only allow access to images with specific naming pattern
+    // Allow public read/write for birthday wishes images
     match /birthday-wishes/{wishId}/{allPaths=**} {
-      // Only allow read if user knows the exact wishId
-      allow read: if request.auth != null || 
-                     resource.name.matches('.*\\.(jpg|jpeg|png|gif|webp)$');
+      // Allow read for anyone
+      allow read: if true;
       
-      // Only allow write for authenticated users
-      allow write: if request.auth != null &&
-                      request.resource.size < 5 * 1024 * 1024 && // 5MB limit
+      // Allow write with size limit and image types only
+      allow write: if request.resource.size < 5 * 1024 * 1024 && // 5MB limit
                       request.resource.contentType.matches('image/.*');
+      
+      // Allow delete (for cleanup)
+      allow delete: if true;
     }
     
-    // Deny all other access
+    // Deny all other paths
     match /{allPaths=**} {
       allow read, write: if false;
     }
