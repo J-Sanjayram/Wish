@@ -16,7 +16,6 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, wisherName }) => {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isMuted, setIsMuted] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [hasStarted, setHasStarted] = useState(false);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -27,7 +26,6 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, wisherName }) => {
       // Play immediately when audio loads
       audio.play().then(() => {
         setIsPlaying(true);
-        setHasStarted(true);
         // Stop after 30 seconds
         setTimeout(() => {
           audio.pause();
@@ -51,7 +49,6 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, wisherName }) => {
         audio.currentTime = song.startTime;
         audio.play().then(() => {
           setIsPlaying(true);
-          setHasStarted(true);
           setTimeout(() => {
             audio.pause();
             setIsPlaying(false);
@@ -79,7 +76,6 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, wisherName }) => {
       audio.currentTime = song.startTime;
       audio.play().then(() => {
         setIsPlaying(true);
-        setHasStarted(true);
         // Stop after 30 seconds
         setTimeout(() => {
           audio.pause();
