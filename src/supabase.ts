@@ -9,7 +9,7 @@ export const uploadImage = async (file: File): Promise<{ url: string; deleteUrl:
   const fileId = `${Date.now()}-${Math.random().toString(36).substring(2)}`;
   const fileName = `${fileId}.${file.name.split('.').pop()}`;
   
-  const { data, error } = await supabase.storage
+  const { error } = await supabase.storage
     .from('wishes')
     .upload(fileName, file, {
       cacheControl: '3600',

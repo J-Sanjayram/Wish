@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { uploadImage, deleteImage, supabase } from './supabase';
+import { deleteImage, supabase } from './supabase';
 import WishForm from './components/WishForm';
 import SuccessCard from './components/SuccessCard';
 import CelebrationScreen from './components/CelebrationScreen';
@@ -127,7 +127,7 @@ const App: React.FC = () => {
             .eq('id', wishId)
             .single();
             
-          if (error) throw error;
+          if (error || !data) throw error;
           
           setCelebrationWish(data as Wish);
           setCurrentView('celebration');
@@ -280,8 +280,7 @@ const App: React.FC = () => {
       
       setCurrentWish(wish);
       
-      // Store wish in Supabase
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('wishes')
         .insert([wish]);
         
