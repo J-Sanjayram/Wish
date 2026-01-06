@@ -212,7 +212,7 @@ const App: React.FC = () => {
   const uploadImageToSupabase = async (imageBlob: Blob, fileName: string): Promise<{ url: string; fileId: string }> => {
     const file = new File([imageBlob], fileName, { type: imageBlob.type });
     
-    const { data, error } = await supabase.storage
+    const { error } = await supabase.storage
       .from('wishes')
       .upload(fileName, file, {
         cacheControl: '3600',
