@@ -100,41 +100,33 @@ const WishForm: React.FC<WishFormProps> = ({ onSubmit, isSubmitting }) => {
 
   return (
     <motion.div 
-      className="bg-white/95 backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-2xl p-4 sm:p-8 mb-4 sm:mb-6"
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      whileHover={{ scale: 1.02 }}
+      className="bg-white/10 backdrop-blur-md rounded-2xl shadow-xl border border-white/20 p-6 mb-6"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
     >
       <div className="text-center mb-4 sm:mb-6">
-        <motion.div 
-          className="text-2xl sm:text-3xl mb-2"
-          animate={{ rotate: [0, 10, -10, 0] }}
-          transition={{ duration: 2, repeat: Infinity }}
-        >
-          🎁
-        </motion.div>
-        <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Create Your Wish</h2>
+        <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">Create Your Wish</h2>
+        <p className="text-white/80 text-sm">Make someone's birthday magical</p>
       </div>
       
-      <div className="space-y-4 sm:space-y-6">
+      <div className="space-y-4 sm:space-y-5">
         <motion.div
           initial={{ opacity: 0, x: -30 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">From (Your Name)</label>
+          <label className="block text-sm font-semibold text-white/90 mb-2">From (Your Name)</label>
           <div className="relative group">
-            <motion.i 
-              className="fas fa-user absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 text-purple-500 text-sm sm:text-base"
-              whileHover={{ scale: 1.2 }}
-            />
+            <div className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 bg-purple-500/20 rounded-full flex items-center justify-center">
+              <span className="text-purple-300 text-xs">👤</span>
+            </div>
             <input
               type="text"
               placeholder="Enter your name"
               value={formData.fromName}
               onChange={handleInputChange('fromName')}
-              className="w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-3 sm:py-4 border-2 border-purple-200 rounded-xl sm:rounded-2xl focus:border-purple-500 focus:outline-none transition-all duration-300 text-sm sm:text-base bg-purple-50/50 focus:shadow-lg"
+              className="w-full pl-11 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/60 focus:bg-white/20 focus:border-purple-400 focus:outline-none transition-all duration-300 backdrop-blur-sm"
             />
           </div>
         </motion.div>
@@ -144,18 +136,17 @@ const WishForm: React.FC<WishFormProps> = ({ onSubmit, isSubmitting }) => {
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">To (Birthday Person)</label>
+          <label className="block text-sm font-semibold text-white/90 mb-2">To (Birthday Person)</label>
           <div className="relative group">
-            <motion.i 
-              className="fas fa-birthday-cake absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 text-pink-500 text-sm sm:text-base"
-              whileHover={{ scale: 1.2 }}
-            />
+            <div className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 bg-pink-500/20 rounded-full flex items-center justify-center">
+              <span className="text-pink-300 text-xs">🎂</span>
+            </div>
             <input
               type="text"
               placeholder="Birthday person's name"
               value={formData.toName}
               onChange={handleInputChange('toName')}
-              className="w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-3 sm:py-4 border-2 border-pink-200 rounded-xl sm:rounded-2xl focus:border-pink-500 focus:outline-none transition-all duration-300 text-sm sm:text-base bg-pink-50/50 focus:shadow-lg"
+              className="w-full pl-11 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/60 focus:bg-white/20 focus:border-pink-400 focus:outline-none transition-all duration-300 backdrop-blur-sm"
             />
           </div>
         </motion.div>
@@ -165,7 +156,7 @@ const WishForm: React.FC<WishFormProps> = ({ onSubmit, isSubmitting }) => {
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.3 }}
         >
-          <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">Photo (Optional)</label>
+          <label className="block text-sm font-semibold text-white/90 mb-2">Photo (Optional)</label>
           <input
             type="file"
             accept="image/jpeg,image/jpg,image/png,image/webp"
@@ -175,30 +166,47 @@ const WishForm: React.FC<WishFormProps> = ({ onSubmit, isSubmitting }) => {
           />
           <motion.label
             htmlFor="image-upload"
-            className="block border-2 border-dashed border-blue-300 rounded-xl sm:rounded-2xl p-4 sm:p-6 text-center cursor-pointer hover:border-blue-500 transition-all duration-300 bg-blue-50/30 hover:bg-blue-50/50"
+            className="block border-2 border-dashed border-white/30 rounded-xl p-4 text-center cursor-pointer hover:border-white/50 hover:bg-white/5 transition-all duration-300 backdrop-blur-sm"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
             {!imagePreview ? (
               <div>
-                <motion.i 
-                  className="fas fa-camera text-2xl sm:text-3xl text-blue-500 mb-2"
-                  animate={{ y: [0, -5, 0] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                />
-                <p className="text-blue-600 font-medium text-sm sm:text-base">Click to add photo</p>
-                <span className="text-xs sm:text-sm text-gray-500">JPG, PNG up to 5MB</span>
+                <div className="w-12 h-12 mx-auto bg-blue-500/20 rounded-full flex items-center justify-center mb-3">
+                  <span className="text-blue-300 text-xl">📷</span>
+                </div>
+                <p className="text-white font-medium text-sm mb-1">Click to add photo</p>
+                <span className="text-white/60 text-xs">JPG, PNG up to 5MB</span>
               </div>
             ) : (
               <motion.div
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
               >
-                <img src={imagePreview} className="w-20 h-20 sm:w-24 sm:h-24 rounded-full mx-auto object-cover shadow-2xl shadow-purple-500/50 hover:shadow-pink-500/70 transition-all duration-300" alt="Preview" />
-                <p className="text-blue-600 font-medium mt-2 text-sm sm:text-base">Click to change</p>
+                <img src={imagePreview} className="w-16 h-16 rounded-full mx-auto object-cover shadow-lg mb-2" alt="Preview" />
+                <p className="text-white font-medium text-sm">Click to change</p>
               </motion.div>
             )}
           </motion.label>
+          
+          {/* Privacy Notice */}
+          <motion.div 
+            className="mt-3 p-3 bg-blue-500/10 border border-blue-400/30 rounded-lg backdrop-blur-sm"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4 }}
+          >
+            <div className="flex items-start gap-2">
+              <span className="text-blue-300 text-sm mt-0.5">🔒</span>
+              <div className="text-xs text-blue-200 leading-relaxed">
+                <p className="font-medium mb-1">Your Privacy Matters</p>
+                <p>• We don't store, use, or collect your uploaded images</p>
+                <p>• You can delete your images anytime using the sharing link</p>
+                <p>• All wishes are automatically deleted after 24 hours</p>
+                <p className="mt-1 text-blue-300 font-medium">Feel free to upload - your privacy is protected!</p>
+              </div>
+            </div>
+          </motion.div>
         </motion.div>
 
         <motion.div
@@ -206,8 +214,8 @@ const WishForm: React.FC<WishFormProps> = ({ onSubmit, isSubmitting }) => {
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.35 }}
         >
-          <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">Journey Images (Optional)</label>
-          <p className="text-xs text-gray-500 mb-2">Recommended: Landscape images (16:9 ratio) up to 5 images</p>
+          <label className="block text-sm font-semibold text-white/90 mb-2">Journey Images (Optional)</label>
+          <p className="text-white/70 text-xs mb-2">Recommended: Landscape images (16:9 ratio) up to 5 images</p>
           <input
             type="file"
             accept="image/jpeg,image/jpg,image/png,image/webp"
@@ -218,7 +226,7 @@ const WishForm: React.FC<WishFormProps> = ({ onSubmit, isSubmitting }) => {
           />
           <motion.label
             htmlFor="journey-upload"
-            className="block border-2 border-dashed border-green-300 rounded-xl sm:rounded-2xl p-4 sm:p-6 text-center cursor-pointer hover:border-green-500 transition-all duration-300 bg-green-50/30 hover:bg-green-50/50"
+            className="block border-2 border-dashed border-green-300 rounded-lg sm:rounded-2xl p-3 sm:p-6 text-center cursor-pointer hover:border-green-500 transition-all duration-300 bg-green-50/30 hover:bg-green-50/50"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
@@ -229,8 +237,8 @@ const WishForm: React.FC<WishFormProps> = ({ onSubmit, isSubmitting }) => {
                   animate={{ y: [0, -5, 0] }}
                   transition={{ duration: 2, repeat: Infinity }}
                 />
-                <p className="text-green-600 font-medium text-sm sm:text-base">Add Journey Images</p>
-                <span className="text-xs sm:text-sm text-gray-500">JPG, PNG up to 5MB each (Max 5 images)</span>
+                <p className="text-white font-medium text-sm mb-1">Add Journey Images</p>
+                <span className="text-white/60 text-xs">JPG, PNG up to 5MB each (Max 5 images)</span>
               </div>
             ) : (
               <motion.div
@@ -241,7 +249,7 @@ const WishForm: React.FC<WishFormProps> = ({ onSubmit, isSubmitting }) => {
                 {journeyPreviews.map((preview, index) => (
                   <img key={index} src={preview} className="w-16 h-12 sm:w-20 sm:h-14 rounded object-cover shadow-lg" alt={`Journey ${index + 1}`} />
                 ))}
-                <p className="text-green-600 font-medium mt-2 text-sm sm:text-base w-full">Click to change ({journeyPreviews.length}/5)</p>
+                <p className="text-white font-medium mt-2 text-sm w-full">Click to change ({journeyPreviews.length}/5)</p>
               </motion.div>
             )}
           </motion.label>
@@ -252,7 +260,7 @@ const WishForm: React.FC<WishFormProps> = ({ onSubmit, isSubmitting }) => {
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.45 }}
         >
-          <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">Background Music (Optional)</label>
+          <label className="block text-sm font-semibold text-white/90 mb-2">Background Music (Optional)</label>
           <MusicSelector
             onSongSelect={(song) => setFormData(prev => ({ ...prev, song }))}
             selectedSong={formData.song}
@@ -264,18 +272,16 @@ const WishForm: React.FC<WishFormProps> = ({ onSubmit, isSubmitting }) => {
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.4 }}
         >
-          <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">Birthday Message</label>
+          <label className="block text-sm font-semibold text-white/90 mb-2">Birthday Message</label>
           <div className="relative group">
-            <motion.i 
-              className="fas fa-heart absolute left-3 sm:left-4 top-3 sm:top-4 text-red-500 text-sm sm:text-base"
-              animate={{ scale: [1, 1.2, 1] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            />
+            <div className="absolute left-3 top-3 w-5 h-5 bg-red-500/20 rounded-full flex items-center justify-center">
+              <span className="text-red-300 text-xs">💝</span>
+            </div>
             <textarea
               placeholder="Write your heartfelt birthday message..."
               value={formData.message}
               onChange={handleInputChange('message')}
-              className="w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-3 sm:py-4 border-2 border-red-200 rounded-xl sm:rounded-2xl focus:border-red-500 focus:outline-none transition-all duration-300 text-sm sm:text-base bg-red-50/50 h-24 sm:h-32 resize-none focus:shadow-lg"
+              className="w-full pl-11 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/60 focus:bg-white/20 focus:border-red-400 focus:outline-none transition-all duration-300 h-24 resize-none backdrop-blur-sm"
             />
           </div>
         </motion.div>
@@ -283,27 +289,23 @@ const WishForm: React.FC<WishFormProps> = ({ onSubmit, isSubmitting }) => {
         <motion.button
           onClick={handleSubmit}
           disabled={isSubmitting}
-          className={`w-full ${isSubmitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700'} text-white font-bold py-3 sm:py-4 px-4 sm:px-6 rounded-xl sm:rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl text-sm sm:text-base`}
+          className={`w-full ${isSubmitting ? 'bg-gray-500/50 cursor-not-allowed' : 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 shadow-lg hover:shadow-purple-500/25'} text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 backdrop-blur-sm border border-white/20`}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          whileHover={!isSubmitting ? { scale: 1.05 } : {}}
-          whileTap={!isSubmitting ? { scale: 0.95 } : {}}
+          whileHover={!isSubmitting ? { scale: 1.02 } : {}}
+          whileTap={!isSubmitting ? { scale: 0.98 } : {}}
         >
           {isSubmitting ? (
             <div className="flex items-center justify-center">
               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-              Creating Wish...
+              Creating Magic...
             </div>
           ) : (
-            <>
-              <motion.i 
-                className="fas fa-paper-plane mr-2"
-                animate={{ x: [0, 5, 0] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              />
-              Create & Share Wish 🎉
-            </>
+            <div className="flex items-center justify-center">
+              <span className="mr-2">✨</span>
+              Create & Share Wish
+            </div>
           )}
         </motion.button>
       </div>

@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 
 interface SuccessCardProps {
   shareUrl: string;
+  masterId?: string;
   onCopyLink: () => void;
   onShareWhatsApp: () => void;
   onCreateAnother: () => void;
@@ -10,6 +11,7 @@ interface SuccessCardProps {
 
 const SuccessCard: React.FC<SuccessCardProps> = ({
   shareUrl,
+  masterId,
   onCopyLink,
   onShareWhatsApp,
   onCreateAnother
@@ -59,6 +61,20 @@ const SuccessCard: React.FC<SuccessCardProps> = ({
         >
           {shareUrl}
         </motion.div>
+        
+        {masterId && (
+          <motion.div 
+            className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+          >
+            <h4 className="font-semibold text-yellow-800 mb-2">Master ID (for image management):</h4>
+            <div className="text-xs font-mono bg-white p-2 rounded border">
+              {masterId}
+            </div>
+          </motion.div>
+        )}
         
         <div className="space-y-2 sm:space-y-3">
           <motion.button

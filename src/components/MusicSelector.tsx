@@ -37,6 +37,8 @@ const MusicSelector: React.FC<MusicSelectorProps> = ({ onSongSelect, selectedSon
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioRef] = useState(new Audio());
 
+  const [playTimeout, setPlayTimeout] = useState<NodeJS.Timeout | null>(null);
+
   const cleanText = (text: string): string => {
     return text.replace(/&quot;/g, '"').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
   };
@@ -47,42 +49,29 @@ const MusicSelector: React.FC<MusicSelectorProps> = ({ onSongSelect, selectedSon
     setIsLoading(true);
     try {
       // Use direct API call for now since Netlify function isn't deployed
-      const response = await fetch(`${process.env.REACT_APP_MUSIC_API_BASE_URL}/search?query=${encodeURIComponent(query)}`);
+      const response = await fetch(`${process.env.REACT_APP_MUSIC_API_BASE_URL}/search/songs?query=${encodeURIComponent(query)}&page=0&limit=50`);
       
       if (!response.ok) {
         throw new Error('API request failed');
       }
       
       const data = await response.json();
+      console.log('Full API response:', data);
       
-      if (data.success && data.data.songs.results) {
-        // Get song details with download URLs
-        const songPromises = data.data.songs.results.map(async (song: any) => {
-          try {
-            const detailResponse = await fetch(`${process.env.REACT_APP_MUSIC_API_BASE_URL}/songs/${song.id}`);
-            const detailData = await detailResponse.json();
-            return {
-              id: song.id,
-              title: cleanText(song.title),
-              artist: cleanText(song.primaryArtists || song.singers),
-              previewUrl: detailData.data[0]?.downloadUrl?.[1]?.url || detailData.data[0]?.downloadUrl?.[0]?.url || '',
-              duration: 180,
-              image: song.image[2]?.url || song.image[1]?.url || song.image[0]?.url
-            };
-          } catch {
-            return {
-              id: song.id,
-              title: song.title,
-              artist: song.primaryArtists || song.singers,
-              previewUrl: '',
-              duration: 180,
-              image: song.image[2]?.url || song.image[1]?.url || song.image[0]?.url
-            };
-          }
-        });
+      if (data.success && data.data.results) {
+        console.log('API returned', data.data.results.length, 'songs');
+        // Process songs with new structure
+        const songs = data.data.results.map((song: any) => ({
+          id: song.id,
+          title: cleanText(song.name),
+          artist: cleanText(song.artists.primary.map((a: any) => a.name).join(', ')),
+          previewUrl: song.downloadUrl?.[4]?.url || song.downloadUrl?.[3]?.url || song.downloadUrl?.[2]?.url || song.downloadUrl?.[1]?.url || song.downloadUrl?.[0]?.url || '',
+          duration: song.duration || 180,
+          image: song.image?.[2]?.url || song.image?.[1]?.url || song.image?.[0]?.url
+        }));
         
-        const songs = await Promise.all(songPromises);
-        setSearchResults(songs.filter(song => song.previewUrl));
+        console.log('Processed', songs.length, 'songs');
+        setSearchResults(songs);
       }
     } catch (error) {
       console.error('Error searching songs:', error);
@@ -114,16 +103,22 @@ const MusicSelector: React.FC<MusicSelectorProps> = ({ onSongSelect, selectedSon
     if (isPlaying) {
       audioRef.pause();
       setIsPlaying(false);
+      if (playTimeout) {
+        clearTimeout(playTimeout);
+        setPlayTimeout(null);
+      }
     } else {
       audioRef.src = editingSong.previewUrl;
       audioRef.currentTime = startTime;
       audioRef.play().then(() => {
         setIsPlaying(true);
         // Stop after 30 seconds
-        setTimeout(() => {
+        const timeout = setTimeout(() => {
           audioRef.pause();
           setIsPlaying(false);
+          setPlayTimeout(null);
         }, 30000);
+        setPlayTimeout(timeout);
       }).catch(() => {
         console.log('Audio preview not available');
       });
@@ -132,8 +127,22 @@ const MusicSelector: React.FC<MusicSelectorProps> = ({ onSongSelect, selectedSon
 
   const handleStartTimeChange = (newStartTime: number) => {
     setStartTime(newStartTime);
+    
+    // If audio is playing, restart from new position
     if (isPlaying) {
       audioRef.currentTime = newStartTime;
+      
+      // Clear existing timeout and set new one
+      if (playTimeout) {
+        clearTimeout(playTimeout);
+      }
+      
+      const timeout = setTimeout(() => {
+        audioRef.pause();
+        setIsPlaying(false);
+      }, 30000);
+      
+      setPlayTimeout(timeout);
     }
   };
 
@@ -166,12 +175,12 @@ const MusicSelector: React.FC<MusicSelectorProps> = ({ onSongSelect, selectedSon
 
       {isOpen && (
         <motion.div
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] p-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
         >
           <motion.div
-            className="bg-white rounded-2xl p-6 max-w-md w-full max-h-96 overflow-y-auto"
+            className="bg-white rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
           >
@@ -205,7 +214,7 @@ const MusicSelector: React.FC<MusicSelectorProps> = ({ onSongSelect, selectedSon
                   </button>
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-2 max-h-[60vh] overflow-y-auto">
                   {searchResults.map((song) => (
                     <div
                       key={song.id}
@@ -260,22 +269,68 @@ const MusicSelector: React.FC<MusicSelectorProps> = ({ onSongSelect, selectedSon
                   </button>
                 </div>
 
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Start Time (seconds)
+                <div className="mb-6 bg-gray-900 p-6 rounded-2xl">
+                  <label className="block text-sm font-medium text-white mb-4 text-center">
+                    Select 30-second clip
                   </label>
-                  <input
-                    type="range"
-                    min="0"
-                    max={Math.max(0, editingSong.duration - 30)}
-                    value={startTime}
-                    onChange={(e) => handleStartTimeChange(Number(e.target.value))}
-                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                  />
-                  <div className="flex justify-between text-sm text-gray-600 mt-1">
-                    <span>{startTime}s</span>
-                    <span>30 second clip</span>
-                    <span>{startTime + 30}s</span>
+                  
+                  <div className="flex items-center justify-center gap-6">
+                    {/* Progress Bar Container */}
+                    <div className="relative flex-1 max-w-md">
+                      {/* Main progress bar with gradient */}
+                      <div className="relative h-8 bg-gradient-to-r from-orange-400 to-purple-500 rounded-lg overflow-hidden">
+                        {/* Segment markers */}
+                        {Array.from({ length: 10 }, (_, i) => (
+                          <div
+                            key={i}
+                            className="absolute top-0 bottom-0 w-0.5 bg-white opacity-60"
+                            style={{ left: `${(i + 1) * 10}%` }}
+                          />
+                        ))}
+                        
+                        {/* Selected 30-second segment overlay */}
+                        <div 
+                          className="absolute top-0 bottom-0 bg-white/20 border-2 border-white rounded"
+                          style={{
+                            left: `${(startTime / editingSong.duration) * 100}%`,
+                            width: `${(30 / editingSong.duration) * 100}%`
+                          }}
+                        />
+                        
+                        {/* Circular progress indicator */}
+                        <div 
+                          className="absolute -top-1 w-4 h-4 bg-white rounded-full shadow-lg border-2 border-gray-800 transition-all duration-150"
+                          style={{
+                            left: `calc(${(startTime / editingSong.duration) * 100}% - 8px)`
+                          }}
+                        />
+                        
+                        {/* Hidden range input */}
+                        <input
+                          type="range"
+                          min="0"
+                          max={Math.max(0, editingSong.duration - 30)}
+                          value={startTime}
+                          onChange={(e) => handleStartTimeChange(Number(e.target.value))}
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        />
+                      </div>
+                      
+                      {/* Time labels */}
+                      <div className="flex justify-between text-xs text-gray-400 mt-2">
+                        <span>0:00</span>
+                        <span>{Math.floor(editingSong.duration / 60)}:{(editingSong.duration % 60).toString().padStart(2, '0')}</span>
+                      </div>
+                    </div>
+                    
+                    
+                  </div>
+                  
+                  {/* Selected time range */}
+                  <div className="text-center mt-4">
+                    <span className="text-sm text-orange-400 font-medium">
+                      Selected: {Math.floor(startTime / 60)}:{(startTime % 60).toString().padStart(2, '0')} - {Math.floor((startTime + 30) / 60)}:{((startTime + 30) % 60).toString().padStart(2, '0')}
+                    </span>
                   </div>
                 </div>
 

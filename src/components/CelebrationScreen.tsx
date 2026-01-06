@@ -210,6 +210,22 @@ const CelebrationScreen: React.FC<CelebrationScreenProps> = ({ wish }) => {
           ease: "linear"
         }}
       >
+        {/* Floating Share Button */}
+        <motion.button
+          onClick={() => {
+            const text = `🎉 Check out this amazing birthday wish for ${decodedTo}! ${window.location.href}`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+          }}
+          className="fixed bottom-4 right-4 bg-green-500/90 backdrop-blur-sm text-white p-3 rounded-full shadow-lg hover:bg-green-600/90 transition-all duration-300 z-20"
+          initial={{ opacity: 0, scale: 0 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 2, duration: 0.5 }}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+        >
+          📤
+        </motion.button>
+        
         {wish.song && startCelebration && <AudioPlayer song={wish.song} wisherName={decodedFrom} />}
         
         <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none" />
