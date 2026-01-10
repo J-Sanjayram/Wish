@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import AdsterraBanner from './AdsterraBanner';
 
 interface SuccessCardProps {
   shareUrl: string;
@@ -88,6 +89,8 @@ const SuccessCard: React.FC<SuccessCardProps> = ({
           >
             <i className="fas fa-copy mr-2"></i>Copy Link
           </motion.button>
+          
+          <AdsterraBanner />
           
           <motion.button
             onClick={onShareWhatsApp}

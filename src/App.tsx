@@ -12,7 +12,7 @@ import TermsOfService from './components/TermsOfService';
 import About from './components/About';
 import Contact from './components/Contact';
 import ImageManager from './components/ImageManager';
-import CookieBanner from './components/CookieBanner';
+import AdsterraBanner from './components/AdsterraBanner';
 
 
 // Generate encrypted wish ID
@@ -354,7 +354,6 @@ const App: React.FC = () => {
             </div>
           </div>
         </div>
-        <CookieBanner />
       </>
     );
   }
@@ -373,7 +372,6 @@ const App: React.FC = () => {
             </div>
           </div>
         </div>
-        <CookieBanner />
       </>
     );
   }
@@ -392,7 +390,6 @@ const App: React.FC = () => {
             </div>
           </div>
         </div>
-        <CookieBanner />
       </>
     );
   }
@@ -411,7 +408,6 @@ const App: React.FC = () => {
             </div>
           </div>
         </div>
-        <CookieBanner />
       </>
     );
   }
@@ -430,7 +426,6 @@ const App: React.FC = () => {
             </div>
           </div>
         </div>
-        <CookieBanner />
       </>
     );
   }
@@ -467,7 +462,6 @@ const App: React.FC = () => {
         </div>
         <Footer onNavigate={handleNavigate} />
       </div>
-      <CookieBanner />
     </>
   );
 };
