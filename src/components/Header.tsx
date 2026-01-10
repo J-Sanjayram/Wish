@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import AdsterraDisplayBanner from './AdsterraDisplayBanner';
 
 const Header: React.FC = () => {
   return (
@@ -64,6 +65,8 @@ const Header: React.FC = () => {
             <span className="text-white/80 text-sm">Trustable</span>
           </div>
         </div>
+        
+        <AdsterraDisplayBanner />
       </motion.div>
     </div>
   );
