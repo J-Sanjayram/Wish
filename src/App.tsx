@@ -12,7 +12,6 @@ import TermsOfService from './components/TermsOfService';
 import About from './components/About';
 import Contact from './components/Contact';
 import ImageManager from './components/ImageManager';
-import AdsterraBanner from './components/AdsterraBanner';
 
 
 // Generate encrypted wish ID
