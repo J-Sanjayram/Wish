@@ -12,6 +12,7 @@ import TermsOfService from './components/TermsOfService';
 import About from './components/About';
 import Contact from './components/Contact';
 import ImageManager from './components/ImageManager';
+import AdsterraSocialBanner from './components/AdsterraSocialBanner';
 
 
 // Generate encrypted wish ID
@@ -459,6 +460,7 @@ const App: React.FC = () => {
             </div>
           </div>
         </div>
+        <AdsterraSocialBanner />
         <Footer onNavigate={handleNavigate} />
       </div>
     </>
