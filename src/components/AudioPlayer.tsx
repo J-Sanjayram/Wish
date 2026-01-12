@@ -87,11 +87,22 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, wisherName }) => {
 
   return (
     <motion.div
-      className="fixed top-4 left-4 right-4 mx-auto   rounded-xl pb-4 z-50"
+      className="fixed top-4 left-4 right-4 mx-auto rounded-xl pb-4 z-50"
       initial={{ opacity: 0, x: 100 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: 2, duration: 0.8 }}
     >
+      <style>
+        {`
+          @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+          }
+          .animate-marquee {
+            animation: marquee 10s linear infinite;
+          }
+        `}
+      </style>
       <audio ref={audioRef} src={song.previewUrl} />
       
       <div className="flex items-center justify-between px-4">
@@ -110,9 +121,13 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, wisherName }) => {
           </motion.div>
         </div>
         
-        <div className="text-white text-center flex-1">
-          <div className="font-medium text-xs">{song.title}</div>
-          <div className="text-xs text-white/70">{song.artist}</div>
+        <div className="text-white text-center flex-1 overflow-hidden">
+          <div className="font-medium text-xs whitespace-nowrap overflow-hidden">
+            <div className="animate-marquee">{song.title}</div>
+          </div>
+          <div className="text-xs text-white/70 whitespace-nowrap overflow-hidden">
+            <div className="animate-marquee">{song.artist}</div>
+          </div>
         </div>
         
         <div className="flex justify-end w-8">
