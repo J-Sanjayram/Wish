@@ -209,8 +209,7 @@ const App: React.FC = () => {
     return new Blob([u8arr], { type: mime });
   };
 
-  const uploadImageToSupabase = async (imageBlob: Blob, fileName: string): Promise<{ url: string; fileId: string }> => {
-    const file = new File([imageBlob], fileName, { type: imageBlob.type });
+  const uploadImageToSupabase = async (file: File, fileName: string): Promise<{ url: string; fileId: string }> => {
     
     const { error } = await supabase.storage
       .from('wishes')
@@ -250,17 +249,13 @@ const App: React.FC = () => {
     
     try {
       if (formData.image) {
-        const compressedImage = await compressImage(formData.image, 400);
-        const imageBlob = dataURLtoBlob(compressedImage);
-        const result = await uploadImageToSupabase(imageBlob, `${masterId}-main.webp`);
+        const result = await uploadImageToSupabase(formData.image, `${masterId}-main.webp`);
         imageUrl = result.url;
       }
       
       if (formData.journeyImages.length > 0) {
         for (let i = 0; i < formData.journeyImages.length; i++) {
-          const compressedImage = await compressJourneyImage(formData.journeyImages[i]);
-          const imageBlob = dataURLtoBlob(compressedImage);
-          const result = await uploadImageToSupabase(imageBlob, `${masterId}-journey-${i}.webp`);
+          const result = await uploadImageToSupabase(formData.journeyImages[i], `${masterId}-journey-${i}.webp`);
           journeyImageUrls.push(result.url);
         }
       }
