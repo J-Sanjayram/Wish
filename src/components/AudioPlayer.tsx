@@ -14,7 +14,6 @@ interface AudioPlayerProps {
 
 const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, wisherName }) => {
   const audioRef = useRef<HTMLAudioElement>(null);
-  const [isMuted, setIsMuted] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
@@ -84,13 +83,6 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, wisherName }) => {
       }).catch(console.error);
     }
   };
-
-  // const toggleMute = () => {
-  //   if (audioRef.current) {
-  //     audioRef.current.muted = !isMuted;
-  //     setIsMuted(!isMuted);
-  //   }
-  // };
 
   return (
     <motion.div
