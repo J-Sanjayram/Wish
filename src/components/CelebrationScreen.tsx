@@ -425,7 +425,7 @@ const CelebrationScreen: React.FC<CelebrationScreenProps> = ({ wish }) => {
               transition={{ delay: 0.9, duration: 0.8 }}
             >
               {wish.journeyImages && wish.journeyImages.length > 0 ? (
-                <div className="relative overflow-hidden p-2">
+                <div className="relative overflow-hidden p-0">
                   <motion.div
                     className="flex"
                     animate={{ x: -currentImageIndex * 100 + '%' }}
