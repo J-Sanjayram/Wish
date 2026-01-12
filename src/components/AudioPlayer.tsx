@@ -85,12 +85,12 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, wisherName }) => {
     }
   };
 
-  const toggleMute = () => {
-    if (audioRef.current) {
-      audioRef.current.muted = !isMuted;
-      setIsMuted(!isMuted);
-    }
-  };
+  // const toggleMute = () => {
+  //   if (audioRef.current) {
+  //     audioRef.current.muted = !isMuted;
+  //     setIsMuted(!isMuted);
+  //   }
+  // };
 
   return (
     <motion.div
@@ -103,14 +103,12 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, wisherName }) => {
       
       <div className="flex items-center justify-between px-4">
         <div className="flex justify-start w-8">
-          <motion.button
-            onClick={toggleMute}
-            className="w-6 h-6 flex items-center justify-center text-white hover:text-white/70 transition-colors"
+          <motion.div
+            className="w-6 h-6 bg-gradient-to-br from-purple-400 to-pink-400 rounded-sm flex items-center justify-center text-white shadow-lg"
             whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
           >
-            <i className={`fas ${isMuted ? 'fa-volume-mute' : 'fa-volume-up'} text-xs`} />
-          </motion.button>
+            <i className="fas fa-music text-xs" />
+          </motion.div>
         </div>
         
         <div className="text-white text-center flex-1">
