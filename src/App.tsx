@@ -152,62 +152,62 @@ const App: React.FC = () => {
     }
   }, []);
 
-  const compressImage = (file: File, maxWidth: number = 400): Promise<string> => {
-    return new Promise((resolve) => {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d')!;
-      const img = new Image();
+  // const compressImage = (file: File, maxWidth: number = 400): Promise<string> => {
+  //   return new Promise((resolve) => {
+  //     const canvas = document.createElement('canvas');
+  //     const ctx = canvas.getContext('2d')!;
+  //     const img = new Image();
       
-      img.onload = () => {
-        canvas.width = maxWidth;
-        canvas.height = maxWidth;
-        ctx.drawImage(img, 0, 0, maxWidth, maxWidth);
-        resolve(canvas.toDataURL('image/webp', 0.2));
-      };
+  //     img.onload = () => {
+  //       canvas.width = maxWidth;
+  //       canvas.height = maxWidth;
+  //       ctx.drawImage(img, 0, 0, maxWidth, maxWidth);
+  //       resolve(canvas.toDataURL('image/webp', 0.2));
+  //     };
       
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        img.src = e.target?.result as string;
-      };
-      reader.readAsDataURL(file);
-    });
-  };
+  //     const reader = new FileReader();
+  //     reader.onload = (e) => {
+  //       img.src = e.target?.result as string;
+  //     };
+  //     reader.readAsDataURL(file);
+  //   });
+  // };
 
-  const compressJourneyImage = (file: File): Promise<string> => {
-    return new Promise((resolve) => {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d')!;
-      const img = new Image();
+  // const compressJourneyImage = (file: File): Promise<string> => {
+  //   return new Promise((resolve) => {
+  //     const canvas = document.createElement('canvas');
+  //     const ctx = canvas.getContext('2d')!;
+  //     const img = new Image();
       
-      img.onload = () => {
-        const maxWidth = 600;
-        const ratio = Math.min(maxWidth / img.width, maxWidth / img.height);
-        canvas.width = img.width * ratio;
-        canvas.height = img.height * ratio;
+  //     img.onload = () => {
+  //       const maxWidth = 600;
+  //       const ratio = Math.min(maxWidth / img.width, maxWidth / img.height);
+  //       canvas.width = img.width * ratio;
+  //       canvas.height = img.height * ratio;
         
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        resolve(canvas.toDataURL('image/webp', 0.2));
-      };
+  //       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+  //       resolve(canvas.toDataURL('image/webp', 0.2));
+  //     };
       
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        img.src = e.target?.result as string;
-      };
-      reader.readAsDataURL(file);
-    });
-  };
+  //     const reader = new FileReader();
+  //     reader.onload = (e) => {
+  //       img.src = e.target?.result as string;
+  //     };
+  //     reader.readAsDataURL(file);
+  //   });
+  // };
 
-  const dataURLtoBlob = (dataURL: string): Blob => {
-    const arr = dataURL.split(',');
-    const mime = arr[0].match(/:(.*?);/)![1];
-    const bstr = atob(arr[1]);
-    let n = bstr.length;
-    const u8arr = new Uint8Array(n);
-    while (n--) {
-      u8arr[n] = bstr.charCodeAt(n);
-    }
-    return new Blob([u8arr], { type: mime });
-  };
+  // const dataURLtoBlob = (dataURL: string): Blob => {
+  //   const arr = dataURL.split(',');
+  //   const mime = arr[0].match(/:(.*?);/)![1];
+  //   const bstr = atob(arr[1]);
+  //   let n = bstr.length;
+  //   const u8arr = new Uint8Array(n);
+  //   while (n--) {
+  //     u8arr[n] = bstr.charCodeAt(n);
+  //   }
+  //   return new Blob([u8arr], { type: mime });
+  // };
 
   const uploadImageToSupabase = async (file: File, fileName: string): Promise<{ url: string; fileId: string }> => {
     
