@@ -95,7 +95,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, wisherName }) => {
       <style>
         {`
           @keyframes marquee {
-            0% { transform: translateX(100%); }
+            0%, 30% { transform: translateX(0); }
             100% { transform: translateX(-100%); }
           }
           .animate-marquee {
@@ -123,10 +123,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, wisherName }) => {
         
         <div className="text-white text-center flex-1 overflow-hidden">
           <div className="font-medium text-xs whitespace-nowrap overflow-hidden">
-            <div className="animate-marquee">{song.title}</div>
-          </div>
-          <div className="text-xs text-white/70 whitespace-nowrap overflow-hidden">
-            <div className="animate-marquee">{song.artist}</div>
+            <div className="animate-marquee">{song.title} • {song.artist}</div>
           </div>
         </div>
         
