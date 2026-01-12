@@ -106,24 +106,20 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, wisherName }) => {
       <audio ref={audioRef} src={song.previewUrl} />
       
       <div className="flex items-center justify-between px-4">
-        <div className="flex justify-start w-8">
-          <motion.div
-            className="w-6 h-6 rounded-sm overflow-hidden shadow-lg"
-            whileHover={{ scale: 1.1 }}
-          >
-            {song.albumArt ? (
+        {song.albumArt && (
+          <div className="flex justify-start w-8">
+            <motion.div
+              className="w-6 h-6 rounded-sm overflow-hidden shadow-lg"
+              whileHover={{ scale: 1.1 }}
+            >
               <img src={song.albumArt} alt="Album Art" className="w-full h-full object-cover" />
-            ) : (
-              <div className="w-full h-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white">
-                <i className="fas fa-music text-xs" />
-              </div>
-            )}
-          </motion.div>
-        </div>
+            </motion.div>
+          </div>
+        )}
         
         <div className="text-white text-center flex-1 overflow-hidden">
           <div className="font-medium text-xs whitespace-nowrap overflow-hidden">
-            <div className="animate-marquee">{song.title} • {song.artist}</div>
+            <div className="animate-marquee">{song.title} • {song.artist} • {song.title} • {song.artist}</div>
           </div>
         </div>
         
