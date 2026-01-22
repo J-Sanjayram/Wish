@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import UnfoldlyLogo from './UnfoldlyLogo';
 
 interface NavigationProps {
   onNavigate: (page: string) => void;
@@ -33,9 +34,7 @@ const Navigation: React.FC<NavigationProps> = ({ onNavigate, currentPage }) => {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
-            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-purple-500/25 transition-all duration-300">
-              <span className="text-lg text-white font-bold">U</span>
-            </div>
+            <UnfoldlyLogo size={40} className="group-hover:scale-110 transition-transform duration-300" />
             <div className="flex flex-col">
               <span className="text-white font-bold text-lg tracking-tight">Unfoldly</span>
               <span className="text-white/60 text-xs font-medium">Birthday Wishes</span>
