@@ -114,11 +114,14 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, wisherName }) => {
       <style>
         {`
           @keyframes marquee {
-            0%, 30% { transform: translateX(0); }
-            100% { transform: translateX(-100%); }
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
           }
           .animate-marquee {
-            animation: marquee 10s linear infinite;
+            animation: marquee 15s linear infinite;
+          }
+          .marquee-container {
+            mask: linear-gradient(90deg, transparent, white 20px, white calc(100% - 20px), transparent);
           }
         `}
       </style>
@@ -141,12 +144,12 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, wisherName }) => {
         </div>
         
         <div className="text-white text-center flex-1 overflow-hidden mx-4">
-          <div className="font-medium text-xs whitespace-nowrap overflow-hidden" ref={titleRef}>
+          <div className="font-medium text-xs whitespace-nowrap overflow-hidden marquee-container" ref={titleRef}>
             <div className={titleOverflows ? "animate-marquee" : ""}>
               {titleOverflows ? `${song.title}     ${song.title}` : song.title}
             </div>
           </div>
-          <div className="text-xs text-white/70 whitespace-nowrap overflow-hidden" ref={artistRef}>
+          <div className="text-xs text-white/70 whitespace-nowrap overflow-hidden marquee-container" ref={artistRef}>
             <div className={artistOverflows ? "animate-marquee" : ""}>
               {artistOverflows ? `${song.artist}     ${song.artist}` : song.artist}
             </div>
