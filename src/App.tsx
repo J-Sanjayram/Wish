@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect,  } from 'react';
 import { deleteImage, supabase } from './supabase';
 import WishForm from './components/WishForm';
 import SuccessCard from './components/SuccessCard';
