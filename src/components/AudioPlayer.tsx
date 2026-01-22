@@ -153,12 +153,12 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, wisherName }) => {
         <div className="text-white text-center flex-1 overflow-hidden mx-4">
           <div className="font-medium text-xs whitespace-nowrap overflow-hidden marquee-container" ref={titleRef}>
             <div className={titleOverflows ? "animate-marquee-title" : ""}>
-              {titleOverflows ? `${song.title}                                                            ${song.title}` : song.title}
+              {titleOverflows ? `${song.title} • ${song.title} • ${song.title} • ${song.title} • ${song.title} • ${song.title}` : song.title}
             </div>
           </div>
           <div className="text-xs text-white/70 whitespace-nowrap overflow-hidden marquee-container" ref={artistRef}>
             <div className={artistOverflows ? "animate-marquee-artist" : ""}>
-              {artistOverflows ? `${song.artist}                                                            ${song.artist}` : song.artist}
+              {artistOverflows ? `${song.artist} • ${song.artist} • ${song.artist} • ${song.artist} • ${song.artist} • ${song.artist}` : song.artist}
             </div>
           </div>
         </div>
