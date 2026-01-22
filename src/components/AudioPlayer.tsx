@@ -15,7 +15,26 @@ interface AudioPlayerProps {
 
 const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, wisherName }) => {
   const audioRef = useRef<HTMLAudioElement>(null);
+  const titleRef = useRef<HTMLDivElement>(null);
+  const artistRef = useRef<HTMLDivElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [titleOverflows, setTitleOverflows] = useState(false);
+  const [artistOverflows, setArtistOverflows] = useState(false);
+
+  useEffect(() => {
+    const checkOverflow = () => {
+      if (titleRef.current) {
+        setTitleOverflows(titleRef.current.scrollWidth > titleRef.current.clientWidth);
+      }
+      if (artistRef.current) {
+        setArtistOverflows(artistRef.current.scrollWidth > artistRef.current.clientWidth);
+      }
+    };
+    
+    checkOverflow();
+    window.addEventListener('resize', checkOverflow);
+    return () => window.removeEventListener('resize', checkOverflow);
+  }, [song.title, song.artist]);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -122,11 +141,15 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, wisherName }) => {
         </div>
         
         <div className="text-white text-center flex-1 overflow-hidden mx-4">
-          <div className="font-medium text-xs whitespace-nowrap overflow-hidden">
-            <div className="animate-marquee">{song.title}     {song.title}</div>
+          <div className="font-medium text-xs whitespace-nowrap overflow-hidden" ref={titleRef}>
+            <div className={titleOverflows ? "animate-marquee" : ""}>
+              {titleOverflows ? `${song.title}     ${song.title}` : song.title}
+            </div>
           </div>
-          <div className="text-xs text-white/70 whitespace-nowrap overflow-hidden">
-            <div className="animate-marquee">{song.artist}     {song.artist}</div>
+          <div className="text-xs text-white/70 whitespace-nowrap overflow-hidden" ref={artistRef}>
+            <div className={artistOverflows ? "animate-marquee" : ""}>
+              {artistOverflows ? `${song.artist}     ${song.artist}` : song.artist}
+            </div>
           </div>
         </div>
         
