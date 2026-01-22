@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { deleteImage, supabase } from './supabase';
 import WishForm from './components/WishForm';
 import SuccessCard from './components/SuccessCard';
@@ -13,6 +13,10 @@ import About from './components/About';
 import Contact from './components/Contact';
 import ImageManager from './components/ImageManager';
 import AdsterraSocialBanner from './components/AdsterraSocialBanner';
+
+// Memoized components
+const MemoizedWishForm = React.memo(WishForm);
+const MemoizedHeader = React.memo(Header);
 
 
 // Generate encrypted wish ID
@@ -434,13 +438,13 @@ const App: React.FC = () => {
           <div className="lg:grid lg:grid-cols-5 lg:gap-12 lg:items-start lg:min-h-[calc(100vh-12rem)]">
             {/* Left side - Description */}
             <div className="lg:col-span-2 mb-8 lg:mb-0 lg:sticky lg:top-24">
-              <Header />
+              <MemoizedHeader />
             </div>
             
             {/* Right side - Form */}
             <div className="lg:col-span-3 w-full max-w-md mx-auto lg:max-w-none">
               {currentView === 'form' && (
-                <WishForm onSubmit={handleFormSubmit} isSubmitting={isSubmitting} />
+                <MemoizedWishForm onSubmit={handleFormSubmit} isSubmitting={isSubmitting} />
               )}
               
               {currentView === 'success' && currentWish && (
