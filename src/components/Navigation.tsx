@@ -11,6 +11,7 @@ const Navigation: React.FC<NavigationProps> = ({ onNavigate, currentPage }) => {
 
   const navItems = [
     { key: 'home', label: 'Home' },
+    { key: 'marriage', label: 'Marriage Invitations' },
     { key: 'manage', label: 'Manage Images' },
     { key: 'about', label: 'About' },
     { key: 'contact', label: 'Contact' },

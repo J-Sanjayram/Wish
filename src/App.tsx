@@ -1,5 +1,6 @@
 import React, { useState, useEffect,  } from 'react';
-import { deleteImage, supabase } from './supabase';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { deleteImage, deleteMarriageImage, supabase } from './supabase';
 import WishForm from './components/WishForm';
 import SuccessCard from './components/SuccessCard';
 import CelebrationScreen from './components/CelebrationScreen';
@@ -13,6 +14,8 @@ import About from './components/About';
 import Contact from './components/Contact';
 import ImageManager from './components/ImageManager';
 import AdsterraSocialBanner from './components/AdsterraSocialBanner';
+import MarriageInvitationForm from './components/MarriageInvitationForm';
+import MarriageInvitationDisplay from './components/MarriageInvitationDisplay';
 
 // Memoized components
 const MemoizedWishForm = React.memo(WishForm);
@@ -92,22 +95,62 @@ const cleanupOldWishes = async () => {
   }
 };
 
-const App: React.FC = () => {
-  const [currentView, setCurrentView] = useState<'form' | 'success' | 'celebration' | 'loading'>('loading');
-  const [currentPage, setCurrentPage] = useState<string>('home');
-  const [shareUrl, setShareUrl] = useState('');
-  const [celebrationWish, setCelebrationWish] = useState<Wish | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [currentWish, setCurrentWish] = useState<Wish | null>(null);
-
-  useEffect(() => {
-    // Run cleanup on app start
-    cleanupOldWishes();
+// Auto-delete marriage invitations after marriage date
+const cleanupExpiredInvitations = async () => {
+  try {
+    const now = new Date().toISOString();
     
-    const urlParams = new URLSearchParams(window.location.search);
-    const wishId = urlParams.get('wish');
-    const deleteId = window.location.pathname.match(/\/delete\/(.+)$/)?.[1];
+    // Get expired invitations
+    const { data: expiredInvitations } = await supabase
+      .from('marriage_invitations')
+      .select('id, images, image_ids')
+      .lt('expires_at', now);
+      
+    if (expiredInvitations && expiredInvitations.length > 0) {
+      // Delete images from storage
+      for (const invitation of expiredInvitations) {
+        if (invitation.image_ids && invitation.image_ids.length > 0) {
+          const filesToDelete = invitation.image_ids.map((id: string) => {
+            const files = invitation.images.filter((url: string) => url.includes(id));
+            return files.map((url: string) => url.split('/').pop()).filter(Boolean);
+          }).flat();
+          
+          if (filesToDelete.length > 0) {
+            await supabase.storage.from('marriage-invitations').remove(filesToDelete);
+          }
+        }
+      }
+      
+      // Delete invitations from database
+      await supabase
+        .from('marriage_invitations')
+        .delete()
+        .lt('expires_at', now);
+        
+      console.log(`Cleaned up ${expiredInvitations.length} expired invitations`);
+    }
+  } catch (error) {
+    console.error('Marriage invitation cleanup failed:', error);
+  }
+};
 
+const App: React.FC = () => {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<MainApp />} />
+        <Route path="/marriage-invitation" element={<MarriageInvitationForm />} />
+        <Route path="/marriage-invitation/:id" element={<MarriageInvitationDisplay />} />
+        <Route path="/delete/:id" element={<DeleteHandler />} />
+        <Route path="/delete-marriage/:id" element={<DeleteMarriageHandler />} />
+      </Routes>
+    </Router>
+  );
+};
+
+const DeleteHandler: React.FC = () => {
+  useEffect(() => {
+    const deleteId = window.location.pathname.match(/\/delete\/(.+)$/)?.[1];
     if (deleteId) {
       const handleDelete = async () => {
         try {
@@ -119,8 +162,47 @@ const App: React.FC = () => {
         window.location.href = '/';
       };
       handleDelete();
-      return;
     }
+  }, []);
+  
+  return <div>Deleting...</div>;
+};
+
+const DeleteMarriageHandler: React.FC = () => {
+  useEffect(() => {
+    const deleteId = window.location.pathname.match(/\/delete-marriage\/(.+)$/)?.[1];
+    if (deleteId) {
+      const handleDelete = async () => {
+        try {
+          const success = await deleteMarriageImage(deleteId);
+          alert(success ? 'Image deleted successfully!' : 'Image not found or already deleted.');
+        } catch (error) {
+          alert('Failed to delete image.');
+        }
+        window.location.href = '/';
+      };
+      handleDelete();
+    }
+  }, []);
+  
+  return <div>Deleting...</div>;
+};
+
+const MainApp: React.FC = () => {
+  const [currentView, setCurrentView] = useState<'form' | 'success' | 'celebration' | 'loading'>('loading');
+  const [currentPage, setCurrentPage] = useState<string>('home');
+  const [shareUrl, setShareUrl] = useState('');
+  const [celebrationWish, setCelebrationWish] = useState<Wish | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [currentWish, setCurrentWish] = useState<Wish | null>(null);
+
+  useEffect(() => {
+    // Run cleanup on app start
+    cleanupOldWishes();
+    cleanupExpiredInvitations();
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    const wishId = urlParams.get('wish');
 
     if (wishId) {
       const fetchWish = async () => {
@@ -317,6 +399,8 @@ const App: React.FC = () => {
     setCurrentPage(page);
     if (page === 'home') {
       setCurrentView('form');
+    } else if (page === 'marriage') {
+      window.location.href = '/marriage-invitation';
     }
   };
 
