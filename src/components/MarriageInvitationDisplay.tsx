@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '../supabase';
-import { Heart, Calendar, MapPin, Music, Sparkles, Star } from 'lucide-react';
 import AudioPlayer from './AudioPlayer';
 
 interface MarriageInvitation {
@@ -71,7 +70,7 @@ const MarriageInvitationDisplay: React.FC = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-rose-200 via-pink-100 to-purple-200 flex items-center justify-center">
         <div className="text-center">
-          <Heart className="w-16 h-16 text-rose-400 mx-auto mb-4" />
+          <div className="text-6xl mb-4">💕</div>
           <h2 className="text-2xl font-bold text-gray-800 mb-2">Invitation Not Found</h2>
           <p className="text-gray-600">This invitation may have expired or doesn't exist.</p>
         </div>
@@ -95,7 +94,7 @@ const MarriageInvitationDisplay: React.FC = () => {
         {[...Array(20)].map((_, i) => (
           <div
             key={i}
-            className="absolute animate-float"
+            className="absolute animate-float text-lg"
             style={{
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
@@ -104,11 +103,11 @@ const MarriageInvitationDisplay: React.FC = () => {
             }}
           >
             {i % 3 === 0 ? (
-              <Heart className="w-4 h-4 text-rose-300/40" />
+              <span className="text-rose-300/40">💕</span>
             ) : i % 3 === 1 ? (
-              <Star className="w-3 h-3 text-pink-300/40" />
+              <span className="text-pink-300/40">⭐</span>
             ) : (
-              <Sparkles className="w-3 h-3 text-purple-300/40" />
+              <span className="text-purple-300/40">✨</span>
             )}
           </div>
         ))}
@@ -151,23 +150,25 @@ const MarriageInvitationDisplay: React.FC = () => {
                 </div>
               ) : (
                 <div className="w-full h-full bg-gradient-to-br from-rose-400 to-pink-500 flex items-center justify-center">
-                  <Heart className="w-24 h-24 text-white/80" />
+                  <div className="text-6xl text-white/80">💕</div>
                 </div>
               )}
               
               {/* Floating Hearts Animation */}
               <div className="absolute inset-0 pointer-events-none">
                 {[...Array(6)].map((_, i) => (
-                  <Heart
+                  <div
                     key={i}
-                    className="absolute w-6 h-6 text-white/60 animate-bounce"
+                    className="absolute text-2xl text-white/60 animate-bounce"
                     style={{
                       left: `${20 + i * 15}%`,
                       top: `${20 + (i % 2) * 40}%`,
                       animationDelay: `${i * 0.5}s`,
                       animationDuration: '2s'
                     }}
-                  />
+                  >
+                    💕
+                  </div>
                 ))}
               </div>
             </div>
@@ -182,7 +183,7 @@ const MarriageInvitationDisplay: React.FC = () => {
                     <div className="w-16 h-0.5 bg-gradient-to-r from-rose-500 to-pink-500 mx-auto"></div>
                   </div>
                   <div className="w-12 h-12 bg-gradient-to-r from-rose-500 to-pink-500 rounded-full flex items-center justify-center animate-pulse">
-                    <Heart className="w-6 h-6 text-white" />
+                    <span className="text-xl text-white">💕</span>
                   </div>
                   <div className="text-center">
                     <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">{invitation.female_name}</h2>
@@ -191,9 +192,9 @@ const MarriageInvitationDisplay: React.FC = () => {
                 </div>
                 
                 <div className="inline-flex items-center gap-2 bg-gradient-to-r from-rose-100 to-pink-100 rounded-full px-6 py-3">
-                  <Sparkles className="w-5 h-5 text-rose-500" />
+                  <span className="text-rose-500">✨</span>
                   <span className="text-gray-700 font-semibold text-lg">are getting married!</span>
-                  <Sparkles className="w-5 h-5 text-rose-500" />
+                  <span className="text-rose-500">✨</span>
                 </div>
               </div>
 
@@ -202,7 +203,7 @@ const MarriageInvitationDisplay: React.FC = () => {
                 <div className="bg-gradient-to-br from-rose-50 to-pink-50 rounded-2xl p-6 border border-rose-100">
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-10 h-10 bg-gradient-to-r from-rose-500 to-pink-500 rounded-full flex items-center justify-center">
-                      <Calendar className="w-5 h-5 text-white" />
+                      <span className="text-white">📅</span>
                     </div>
                     <h3 className="text-xl font-bold text-gray-800">Wedding Date</h3>
                   </div>
@@ -212,7 +213,7 @@ const MarriageInvitationDisplay: React.FC = () => {
                 <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-6 border border-purple-100">
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
-                      <MapPin className="w-5 h-5 text-white" />
+                      <span className="text-white">📍</span>
                     </div>
                     <h3 className="text-xl font-bold text-gray-800">Venue</h3>
                   </div>
@@ -224,7 +225,7 @@ const MarriageInvitationDisplay: React.FC = () => {
               {invitation.additional_info && (
                 <div className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-2xl p-6 border border-yellow-100 mb-8">
                   <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                    <Sparkles className="w-5 h-5 text-yellow-500" />
+                    <span className="text-yellow-500">✨</span>
                     Special Message
                   </h3>
                   <p className="text-gray-700 leading-relaxed">{invitation.additional_info}</p>
@@ -236,7 +237,7 @@ const MarriageInvitationDisplay: React.FC = () => {
                 <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-6 border border-indigo-100 mb-8">
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-10 h-10 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full flex items-center justify-center">
-                      <Music className="w-5 h-5 text-white" />
+                      <span className="text-white">🎵</span>
                     </div>
                     <h3 className="text-xl font-bold text-gray-800">Our Song</h3>
                   </div>
@@ -248,8 +249,7 @@ const MarriageInvitationDisplay: React.FC = () => {
                       startTime: 0,
                       duration: 30
                     }}
-                    artist="Wedding Music"
-                    albumArt={invitation.images[0] || ''}
+                    wisherName="Wedding Couple"
                   />
                 </div>
               )}
@@ -258,9 +258,9 @@ const MarriageInvitationDisplay: React.FC = () => {
               <div className="text-center pt-8 border-t border-gray-200">
                 <p className="text-gray-600 mb-4">Join us as we celebrate our love and begin our journey together</p>
                 <div className="flex items-center justify-center gap-2">
-                  <Heart className="w-5 h-5 text-rose-500 animate-pulse" />
+                  <span className="text-rose-500 animate-pulse">💕</span>
                   <span className="text-gray-500 font-medium">With love and joy</span>
-                  <Heart className="w-5 h-5 text-rose-500 animate-pulse" />
+                  <span className="text-rose-500 animate-pulse">💕</span>
                 </div>
               </div>
             </div>
@@ -268,7 +268,7 @@ const MarriageInvitationDisplay: React.FC = () => {
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         @keyframes float {
           0%, 100% { transform: translateY(0px) rotate(0deg); }
           50% { transform: translateY(-20px) rotate(180deg); }
