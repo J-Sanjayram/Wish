@@ -241,7 +241,13 @@ const MarriageInvitationDisplay: React.FC = () => {
                     <h3 className="text-xl font-bold text-gray-800">Our Song</h3>
                   </div>
                   <AudioPlayer 
-                    song={invitation.song}
+                    song={{
+                      title: invitation.song,
+                      artist: "Wedding Music",
+                      previewUrl: "",
+                      startTime: 0,
+                      duration: 30
+                    }}
                     artist="Wedding Music"
                     albumArt={invitation.images[0] || ''}
                   />
