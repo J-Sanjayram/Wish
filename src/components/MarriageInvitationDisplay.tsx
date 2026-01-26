@@ -124,6 +124,29 @@ const MarriageInvitationDisplay: React.FC = () => {
             
             {/* Header with Images */}
             <div className="relative h-48 sm:h-64 md:h-80 overflow-hidden border-b-4 border-orange-200">
+              {/* Decorative Love Frame */}
+              <div className="absolute inset-0 pointer-events-none z-10">
+                {/* Corner Hearts */}
+                <div className="absolute top-2 left-2 text-red-500 text-2xl sm:text-3xl animate-pulse">💕</div>
+                <div className="absolute top-2 right-2 text-red-500 text-2xl sm:text-3xl animate-pulse">💕</div>
+                <div className="absolute bottom-8 left-2 text-red-500 text-2xl sm:text-3xl animate-pulse">💕</div>
+                <div className="absolute bottom-8 right-2 text-red-500 text-2xl sm:text-3xl animate-pulse">💕</div>
+                
+                {/* Side Hearts */}
+                <div className="absolute top-1/2 left-1 transform -translate-y-1/2 text-pink-500 text-xl animate-bounce">💖</div>
+                <div className="absolute top-1/2 right-1 transform -translate-y-1/2 text-pink-500 text-xl animate-bounce">💖</div>
+                
+                {/* Top and Bottom Hearts */}
+                <div className="absolute top-1 left-1/2 transform -translate-x-1/2 text-red-400 text-lg animate-pulse">❤️</div>
+                <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 text-red-400 text-lg animate-pulse">❤️</div>
+                
+                {/* Floating Love Elements */}
+                <div className="absolute top-4 left-1/4 text-pink-400 text-sm animate-bounce" style={{animationDelay: '0.5s'}}>💝</div>
+                <div className="absolute top-4 right-1/4 text-pink-400 text-sm animate-bounce" style={{animationDelay: '1s'}}>💝</div>
+                <div className="absolute bottom-12 left-1/3 text-red-300 text-sm animate-pulse" style={{animationDelay: '1.5s'}}>💞</div>
+                <div className="absolute bottom-12 right-1/3 text-red-300 text-sm animate-pulse" style={{animationDelay: '2s'}}>💞</div>
+              </div>
+              
               {invitation.images.length > 0 ? (
                 <div className="relative w-full h-full">
                   {invitation.images.map((image, index) => (
@@ -136,23 +159,17 @@ const MarriageInvitationDisplay: React.FC = () => {
                       }`}
                     />
                   ))}
-                  <div className="absolute inset-0 bg-gradient-to-t from-orange-900/60 via-transparent to-transparent" />
-                  
-                  {/* Decorative Corner Elements */}
-                  <div className="absolute top-2 left-2 text-yellow-400 text-xl sm:text-2xl">🪔</div>
-                  <div className="absolute top-2 right-2 text-yellow-400 text-xl sm:text-2xl">🪔</div>
-                  <div className="absolute bottom-8 left-2 text-red-400 text-xl sm:text-2xl">🌺</div>
-                  <div className="absolute bottom-8 right-2 text-red-400 text-xl sm:text-2xl">🌺</div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-red-900/40 via-transparent to-transparent" />
                   
                   {/* Image Indicators */}
                   {invitation.images.length > 1 && (
-                    <div className="absolute bottom-2 sm:bottom-4 left-1/2 transform -translate-x-1/2 flex gap-1 sm:gap-2">
+                    <div className="absolute bottom-2 sm:bottom-4 left-1/2 transform -translate-x-1/2 flex gap-1 sm:gap-2 z-20">
                       {invitation.images.map((_, index) => (
                         <button
                           key={index}
                           onClick={() => setCurrentImageIndex(index)}
                           className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full transition-all duration-300 ${
-                            index === currentImageIndex ? 'bg-yellow-400' : 'bg-yellow-400/50'
+                            index === currentImageIndex ? 'bg-red-400' : 'bg-red-400/50'
                           }`}
                         />
                       ))}
@@ -160,8 +177,8 @@ const MarriageInvitationDisplay: React.FC = () => {
                   )}
                 </div>
               ) : (
-                <div className="w-full h-full bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center">
-                  <div className="text-4xl sm:text-6xl text-yellow-100">🕉️</div>
+                <div className="w-full h-full bg-gradient-to-br from-pink-400 via-red-400 to-rose-500 flex items-center justify-center">
+                  <div className="text-4xl sm:text-6xl text-white animate-pulse">💕</div>
                 </div>
               )}
             </div>
