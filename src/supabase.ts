@@ -30,11 +30,11 @@ export const uploadImage = async (file: File): Promise<{ url: string; deleteUrl:
 };
 
 export const uploadMarriageImage = async (file: File): Promise<{ url: string; deleteUrl: string; fileId: string }> => {
-  const fileId = `${Date.now()}-${Math.random().toString(36).substring(2)}`;
+  const fileId = `marriage-${Date.now()}-${Math.random().toString(36).substring(2)}`;
   const fileName = `${fileId}.${file.name.split('.').pop()}`;
   
   const { error } = await supabase.storage
-    .from('marriage-invitations')
+    .from('wishes')
     .upload(fileName, file, {
       cacheControl: '3600',
       upsert: false
@@ -43,7 +43,7 @@ export const uploadMarriageImage = async (file: File): Promise<{ url: string; de
   if (error) throw error;
   
   const { data: { publicUrl } } = supabase.storage
-    .from('marriage-invitations')
+    .from('wishes')
     .getPublicUrl(fileName);
     
   return {
@@ -69,13 +69,13 @@ export const deleteImage = async (fileId: string): Promise<boolean> => {
 
 export const deleteMarriageImage = async (fileId: string): Promise<boolean> => {
   const { data: files } = await supabase.storage
-    .from('marriage-invitations')
+    .from('wishes')
     .list('', { search: fileId });
     
   if (!files || files.length === 0) return false;
   
   const { error } = await supabase.storage
-    .from('marriage-invitations')
+    .from('wishes')
     .remove([files[0].name]);
     
   return !error;
