@@ -1,5 +1,5 @@
 import React, { useState, useEffect,  } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useParams } from 'react-router-dom';
 import { deleteImage, deleteMarriageImage, supabase } from './supabase';
 import WishForm from './components/WishForm';
 import SuccessCard from './components/SuccessCard';
