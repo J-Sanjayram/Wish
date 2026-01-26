@@ -9,7 +9,9 @@ interface MarriageFormData {
   place: string;
   song: string;
   additionalInfo: string;
-  images: File[];
+  maleImage: File | null;
+  femaleImage: File | null;
+  loveImages: File[];
 }
 
 const MarriageInvitationForm: React.FC = () => {
@@ -20,23 +22,25 @@ const MarriageInvitationForm: React.FC = () => {
     place: '',
     song: '',
     additionalInfo: '',
-    images: []
+    maleImage: null,
+    femaleImage: null,
+    loveImages: []
   });
   const [loading, setLoading] = useState(false);
   const [invitationUrl, setInvitationUrl] = useState('');
 
-  const handleImageUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLoveImageUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     const validFiles = files.filter(file => 
-      file.type.startsWith('image/') && formData.images.length + files.length <= 4
+      file.type.startsWith('image/') && formData.loveImages.length + files.length <= 4
     );
-    setFormData(prev => ({ ...prev, images: [...prev.images, ...validFiles] }));
-  }, [formData.images.length]);
+    setFormData(prev => ({ ...prev, loveImages: [...prev.loveImages, ...validFiles] }));
+  }, [formData.loveImages.length]);
 
-  const removeImage = useCallback((index: number) => {
+  const removeLoveImage = useCallback((index: number) => {
     setFormData(prev => ({
       ...prev,
-      images: prev.images.filter((_, i) => i !== index)
+      loveImages: prev.loveImages.filter((_, i) => i !== index)
     }));
   }, []);
 
@@ -45,9 +49,29 @@ const MarriageInvitationForm: React.FC = () => {
     setLoading(true);
 
     try {
-      const imageUrls = await Promise.all(
-        formData.images.map(file => uploadMarriageImage(file))
-      );
+      const imageUrls = [];
+      const imageIds = [];
+      
+      // Upload male image
+      if (formData.maleImage) {
+        const result = await uploadMarriageImage(formData.maleImage);
+        imageUrls.push(result.url);
+        imageIds.push(result.fileId);
+      }
+      
+      // Upload female image
+      if (formData.femaleImage) {
+        const result = await uploadMarriageImage(formData.femaleImage);
+        imageUrls.push(result.url);
+        imageIds.push(result.fileId);
+      }
+      
+      // Upload love images
+      for (const file of formData.loveImages) {
+        const result = await uploadMarriageImage(file);
+        imageUrls.push(result.url);
+        imageIds.push(result.fileId);
+      }
 
       const invitationId = `${Date.now()}-${Math.random().toString(36).substring(2)}`;
       
@@ -61,8 +85,11 @@ const MarriageInvitationForm: React.FC = () => {
           place: formData.place,
           song: formData.song,
           additional_info: formData.additionalInfo,
-          images: imageUrls.map(img => img.url),
-          image_ids: imageUrls.map(img => img.fileId),
+          images: imageUrls,
+          image_ids: imageIds,
+          male_image: formData.maleImage ? imageUrls[0] : null,
+          female_image: formData.femaleImage ? imageUrls[formData.maleImage ? 1 : 0] : null,
+          love_images: imageUrls.slice((formData.maleImage ? 1 : 0) + (formData.femaleImage ? 1 : 0)),
           created_at: new Date().toISOString(),
           expires_at: new Date(new Date(formData.date).getTime() + 24 * 60 * 60 * 1000).toISOString()
         });
@@ -197,20 +224,91 @@ const MarriageInvitationForm: React.FC = () => {
           <div className="mb-8">
             <label className="block text-gray-700 font-semibold mb-4 flex items-center gap-2">
               <Upload className="w-4 h-4" />
-              Couple Photos (Up to 4)
+              Individual Photos
             </label>
             
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-              {formData.images.map((file, index) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              {/* Groom Photo */}
+              <div>
+                <label className="block text-gray-600 font-medium mb-2">Groom's Photo</label>
+                {formData.maleImage ? (
+                  <div className="relative group">
+                    <img
+                      src={URL.createObjectURL(formData.maleImage)}
+                      alt="Groom"
+                      className="w-full h-32 object-cover rounded-xl border-2 border-blue-200"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, maleImage: null }))}
+                      className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ) : (
+                  <label className="w-full h-32 border-2 border-dashed border-blue-300 rounded-xl flex items-center justify-center cursor-pointer hover:border-blue-500 transition-colors duration-300">
+                    <Upload className="w-6 h-6 text-blue-400" />
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) setFormData(prev => ({ ...prev, maleImage: file }));
+                      }}
+                      className="hidden"
+                    />
+                  </label>
+                )}
+              </div>
+              
+              {/* Bride Photo */}
+              <div>
+                <label className="block text-gray-600 font-medium mb-2">Bride's Photo</label>
+                {formData.femaleImage ? (
+                  <div className="relative group">
+                    <img
+                      src={URL.createObjectURL(formData.femaleImage)}
+                      alt="Bride"
+                      className="w-full h-32 object-cover rounded-xl border-2 border-pink-200"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, femaleImage: null }))}
+                      className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ) : (
+                  <label className="w-full h-32 border-2 border-dashed border-pink-300 rounded-xl flex items-center justify-center cursor-pointer hover:border-pink-500 transition-colors duration-300">
+                    <Upload className="w-6 h-6 text-pink-400" />
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) setFormData(prev => ({ ...prev, femaleImage: file }));
+                      }}
+                      className="hidden"
+                    />
+                  </label>
+                )}
+              </div>
+            </div>
+            
+            <label className="block text-gray-600 font-medium mb-4">Love Photos (Up to 4)</label>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {formData.loveImages.map((file, index) => (
                 <div key={index} className="relative group">
                   <img
                     src={URL.createObjectURL(file)}
-                    alt={`Upload ${index + 1}`}
-                    className="w-full h-24 object-cover rounded-xl border-2 border-gray-200"
+                    alt={`Love ${index + 1}`}
+                    className="w-full h-24 object-cover rounded-xl border-2 border-red-200"
                   />
                   <button
                     type="button"
-                    onClick={() => removeImage(index)}
+                    onClick={() => removeLoveImage(index)}
                     className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                   >
                     <X className="w-3 h-3" />
@@ -218,14 +316,14 @@ const MarriageInvitationForm: React.FC = () => {
                 </div>
               ))}
               
-              {formData.images.length < 4 && (
-                <label className="w-full h-24 border-2 border-dashed border-gray-300 rounded-xl flex items-center justify-center cursor-pointer hover:border-rose-500 transition-colors duration-300">
-                  <Upload className="w-6 h-6 text-gray-400" />
+              {formData.loveImages.length < 4 && (
+                <label className="w-full h-24 border-2 border-dashed border-red-300 rounded-xl flex items-center justify-center cursor-pointer hover:border-red-500 transition-colors duration-300">
+                  <Heart className="w-6 h-6 text-red-400" />
                   <input
                     type="file"
                     multiple
                     accept="image/*"
-                    onChange={handleImageUpload}
+                    onChange={handleLoveImageUpload}
                     className="hidden"
                   />
                 </label>
