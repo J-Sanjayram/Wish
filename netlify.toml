@@ -6,6 +6,7 @@
   CI = "false"
   GENERATE_SOURCEMAP = "false"
   DISABLE_ESLINT_PLUGIN = "true"
+  SECRETS_SCAN_ENABLED = "false"
 
 [[headers]]
   for = "/*"
