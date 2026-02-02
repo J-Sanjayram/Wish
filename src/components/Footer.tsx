@@ -46,13 +46,13 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             <div className="flex items-center gap-3 mb-4">
               
               <div>
-                <h3 className="text-white font-bold text-xl tracking-tight">Unfoldly</h3>
-                <p className="text-white/60 text-sm font-medium">Birthday Wishes</p>
+                <h3 className="text-white font-bold text-xl tracking-tight">Lumira</h3>
+                <p className="text-white/60 text-sm font-medium">Creative Studio</p>
               </div>
             </div>
             <p className="text-white/80 text-sm leading-relaxed max-w-md mb-6">
-              Create magical birthday moments that bring joy and celebration to people worldwide. 
-              Share personalized wishes with photos, music, and heartfelt messages.
+              Create magical moments with birthday wishes, wedding invitations, and professional image editing. 
+              Share personalized experiences with photos, music, and heartfelt messages.
             </p>
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
@@ -116,7 +116,7 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
         >
           <div className="flex items-center gap-6">
             <p className="text-white/60 text-sm">
-              © {currentYear} Unfoldly. All rights reserved.
+              © {currentYear} Lumira. All rights reserved.
             </p>
             <div className="hidden sm:flex items-center gap-4">
               {footerLinks.social.map((social, index) => (

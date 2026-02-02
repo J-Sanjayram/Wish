@@ -2,10 +2,10 @@ import React from 'react';
 import { motion } from 'framer-motion';
 
 const AnimatedBackground: React.FC = () => {
-  const emojis = ['🎂', '🎁', '🎉', '✨', '🎈', '🌟'];
+  const emojis = ['✨', '🎨', '💫', '🌟', '⭐', '🔮'];
 
   return (
-    <div className="fixed inset-0 bg-gradient-to-br from-purple-600 via-pink-500 to-red-500 overflow-hidden">
+    <div className="fixed inset-0 bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 overflow-hidden">
       <div className="absolute inset-0 opacity-30">
         {[...Array(20)].map((_, i) => (
           <motion.div

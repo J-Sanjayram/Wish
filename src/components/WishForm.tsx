@@ -1,5 +1,10 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { User, Cake, MessageSquare } from 'lucide-react';
+import { useFormValidation } from '../hooks/useFormValidation';
+import { TextInput, TextArea } from './ui/FormInputs';
+import { FileUpload } from './ui/FileUpload';
+import { ProfilePictureUpload } from './ProfilePictureUpload';
 import MusicSelector from './MusicSelector';
 
 interface WishFormProps {
@@ -7,7 +12,7 @@ interface WishFormProps {
     fromName: string;
     toName: string;
     message: string;
-    image: File | null;
+    image: string | null;
     journeyImages: File[];
     song?: {
       title: string;
@@ -20,81 +25,46 @@ interface WishFormProps {
   isSubmitting: boolean;
 }
 
+interface FormData {
+  fromName: string;
+  toName: string;
+  message: string;
+  image: string | null;
+  journeyImages: File[];
+  song?: {
+    title: string;
+    artist: string;
+    previewUrl: string;
+    startTime: number;
+    duration: number;
+  };
+}
+
 const WishForm: React.FC<WishFormProps> = ({ onSubmit, isSubmitting }) => {
-  const [formData, setFormData] = useState({
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [journeyImages, setJourneyImages] = useState<File[]>([]);
+  const [selectedSong, setSelectedSong] = useState<FormData['song']>();
+
+  const { values, errors, isValid, setValue, validateAll } = useFormValidation<Omit<FormData, 'image' | 'journeyImages' | 'song'>>({
     fromName: '',
     toName: '',
-    message: '',
-    image: null as File | null,
-    journeyImages: [] as File[],
-    song: undefined as {
-      title: string;
-      artist: string;
-      previewUrl: string;
-      startTime: number;
-      duration: number;
-    } | undefined
+    message: ''
+  }, {
+    fromName: { required: true, minLength: 2, maxLength: 50 },
+    toName: { required: true, minLength: 2, maxLength: 50 },
+    message: { required: true, minLength: 10, maxLength: 500 }
   });
 
-  const [imagePreview, setImagePreview] = useState<string>('');
-  const [journeyPreviews, setJourneyPreviews] = useState<string[]>([]);
-
-  const handleInputChange = (field: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: e.target.value
-    }));
-  };
-
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file && file.size <= 5 * 1024 * 1024) {
-      setFormData(prev => ({ ...prev, image: file }));
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setImagePreview(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
-    } else {
-      alert('Please select an image under 5MB');
-    }
-  };
-
-  const handleJourneyImagesUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    if (files.length > 5) {
-      alert('Maximum 5 journey images allowed');
-      return;
-    }
-    
-    const validFiles = files.filter(file => file.size <= 5 * 1024 * 1024);
-    if (validFiles.length !== files.length) {
-      alert('Some images were too large (max 5MB each)');
-    }
-    
-    setFormData(prev => ({ ...prev, journeyImages: validFiles }));
-    
-    const previews: string[] = [];
-    validFiles.forEach(file => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        previews.push(e.target?.result as string);
-        if (previews.length === validFiles.length) {
-          setJourneyPreviews(previews);
-        }
-      };
-      reader.readAsDataURL(file);
-    });
-  };
-
   const handleSubmit = () => {
-    if (!formData.fromName || !formData.toName || !formData.message) {
-      alert('Please fill in all required fields');
+    if (!validateAll()) {
       return;
     }
+
     onSubmit({
-      ...formData,
-      song: formData.song || undefined
+      ...values,
+      image: profileImage,
+      journeyImages,
+      song: selectedSong
     });
   };
 
@@ -105,30 +75,34 @@ const WishForm: React.FC<WishFormProps> = ({ onSubmit, isSubmitting }) => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
     >
-      <div className="text-center mb-4 sm:mb-6">
-        <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">Create Your Wish</h2>
-        <p className="text-white/80 text-sm">Make someone's birthday magical</p>
+      <div className="text-center mb-6">
+        {/* <motion.div 
+          className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4"
+          animate={{ rotate: [0, 5, -5, 0] }}
+          transition={{ duration: 2, repeat: Infinity }}
+        >
+          <Cake className="w-8 h-8 text-white" />
+        </motion.div> */}
+        <h2 className="text-2xl font-bold text-white mb-2">Create Your Wish</h2>
+        <p className="text-white/80 text-sm">Make someone's birthday magical with a personalized message</p>
       </div>
       
-      <div className="space-y-4 sm:space-y-5">
+      <div className="space-y-6">
         <motion.div
           initial={{ opacity: 0, x: -30 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <label className="block text-sm font-semibold text-white/90 mb-2">From (Your Name)</label>
-          <div className="relative group">
-            <div className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 bg-purple-500/20 rounded-full flex items-center justify-center">
-              <span className="text-purple-300 text-xs">👤</span>
-            </div>
-            <input
-              type="text"
-              placeholder="Enter your name"
-              value={formData.fromName}
-              onChange={handleInputChange('fromName')}
-              className="w-full pl-11 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/60 focus:bg-white/20 focus:border-purple-400 focus:outline-none transition-all duration-300 backdrop-blur-sm"
-            />
-          </div>
+          <TextInput
+            label="From (Your Name)"
+            placeholder="Enter your name"
+            value={values.fromName}
+            onChange={(value) => setValue('fromName', value)}
+            error={errors.fromName}
+            required
+            icon={<User className="w-4 h-4" />}
+            maxLength={50}
+          />
         </motion.div>
 
         <motion.div
@@ -136,19 +110,16 @@ const WishForm: React.FC<WishFormProps> = ({ onSubmit, isSubmitting }) => {
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <label className="block text-sm font-semibold text-white/90 mb-2">To (Birthday Person)</label>
-          <div className="relative group">
-            <div className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 bg-pink-500/20 rounded-full flex items-center justify-center">
-              <span className="text-pink-300 text-xs">🎂</span>
-            </div>
-            <input
-              type="text"
-              placeholder="Birthday person's name"
-              value={formData.toName}
-              onChange={handleInputChange('toName')}
-              className="w-full pl-11 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/60 focus:bg-white/20 focus:border-pink-400 focus:outline-none transition-all duration-300 backdrop-blur-sm"
-            />
-          </div>
+          <TextInput
+            label="To (Birthday Person)"
+            placeholder="Birthday person's name"
+            value={values.toName}
+            onChange={(value) => setValue('toName', value)}
+            error={errors.toName}
+            required
+            icon={<Cake className="w-4 h-4" />}
+            maxLength={50}
+          />
         </motion.div>
 
         <motion.div
@@ -156,38 +127,11 @@ const WishForm: React.FC<WishFormProps> = ({ onSubmit, isSubmitting }) => {
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.3 }}
         >
-          <label className="block text-sm font-semibold text-white/90 mb-2">Photo (Optional)</label>
-          <input
-            type="file"
-            accept="image/jpeg,image/jpg,image/png,image/webp"
-            className="hidden"
-            id="image-upload"
-            onChange={handleImageUpload}
+          <ProfilePictureUpload
+            userType="birthday"
+            onImageProcessed={setProfileImage}
+            className="mb-4"
           />
-          <motion.label
-            htmlFor="image-upload"
-            className="block border-2 border-dashed border-white/30 rounded-xl p-4 text-center cursor-pointer hover:border-white/50 hover:bg-white/5 transition-all duration-300 backdrop-blur-sm"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            {!imagePreview ? (
-              <div>
-                <div className="w-12 h-12 mx-auto bg-blue-500/20 rounded-full flex items-center justify-center mb-3">
-                  <span className="text-blue-300 text-xl">📷</span>
-                </div>
-                <p className="text-white font-medium text-sm mb-1">Click to add photo</p>
-                <span className="text-white/60 text-xs">JPG, PNG up to 5MB</span>
-              </div>
-            ) : (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-              >
-                <img src={imagePreview} className="w-16 h-16 rounded-full mx-auto object-cover shadow-lg mb-2" alt="Preview" />
-                <p className="text-white font-medium text-sm">Click to change</p>
-              </motion.div>
-            )}
-          </motion.label>
           
           {/* Privacy Notice */}
           <motion.div 
@@ -214,45 +158,16 @@ const WishForm: React.FC<WishFormProps> = ({ onSubmit, isSubmitting }) => {
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.35 }}
         >
-          <label className="block text-sm font-semibold text-white/90 mb-2">Journey Images (Optional)</label>
-          <p className="text-white/70 text-xs mb-2">Recommended: Landscape images (16:9 ratio) up to 5 images</p>
-          <input
-            type="file"
+          <FileUpload
+            label="Journey Images (Optional)"
+            hint="Add up to 5 images showing your journey together (recommended: landscape 16:9 ratio)"
             accept="image/jpeg,image/jpg,image/png,image/webp"
+            maxSize={5}
+            maxFiles={5}
             multiple
-            className="hidden"
-            id="journey-upload"
-            onChange={handleJourneyImagesUpload}
+            files={journeyImages}
+            onFilesChange={setJourneyImages}
           />
-          <motion.label
-            htmlFor="journey-upload"
-            className="block border-2 border-dashed border-green-300 rounded-lg sm:rounded-2xl p-3 sm:p-6 text-center cursor-pointer hover:border-green-500 transition-all duration-300 bg-green-50/30 hover:bg-green-50/50"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            {journeyPreviews.length === 0 ? (
-              <div>
-                <motion.i 
-                  className="fas fa-images text-2xl sm:text-3xl text-green-500 mb-2"
-                  animate={{ y: [0, -5, 0] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                />
-                <p className="text-white font-medium text-sm mb-1">Add Journey Images</p>
-                <span className="text-white/60 text-xs">JPG, PNG up to 5MB each (Max 5 images)</span>
-              </div>
-            ) : (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="flex flex-wrap gap-2 justify-center"
-              >
-                {journeyPreviews.map((preview, index) => (
-                  <img key={index} src={preview} className="w-16 h-12 sm:w-20 sm:h-14 rounded object-cover shadow-lg" alt={`Journey ${index + 1}`} />
-                ))}
-                <p className="text-white font-medium mt-2 text-sm w-full">Click to change ({journeyPreviews.length}/5)</p>
-              </motion.div>
-            )}
-          </motion.label>
         </motion.div>
 
         <motion.div
@@ -262,8 +177,9 @@ const WishForm: React.FC<WishFormProps> = ({ onSubmit, isSubmitting }) => {
         >
           <label className="block text-sm font-semibold text-white/90 mb-2">Background Music (Optional)</label>
           <MusicSelector
-            onSongSelect={(song) => setFormData(prev => ({ ...prev, song }))}
-            selectedSong={formData.song}
+            onSongSelect={setSelectedSong}
+            selectedSong={selectedSong}
+            context="birthday"
           />
         </motion.div>
 
@@ -272,30 +188,30 @@ const WishForm: React.FC<WishFormProps> = ({ onSubmit, isSubmitting }) => {
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.4 }}
         >
-          <label className="block text-sm font-semibold text-white/90 mb-2">Birthday Message</label>
-          <div className="relative group">
-            <div className="absolute left-3 top-3 w-5 h-5 bg-red-500/20 rounded-full flex items-center justify-center">
-              <span className="text-red-300 text-xs">💝</span>
-            </div>
-            <textarea
-              placeholder="Write your heartfelt birthday message..."
-              value={formData.message}
-              onChange={handleInputChange('message')}
-              className="w-full pl-11 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/60 focus:bg-white/20 focus:border-red-400 focus:outline-none transition-all duration-300 h-24 resize-none backdrop-blur-sm"
-            />
-          </div>
+          <TextArea
+            label="Birthday Message"
+            placeholder="Write your heartfelt birthday message..."
+            value={values.message}
+            onChange={(value) => setValue('message', value)}
+            error={errors.message}
+            required
+            rows={4}
+            maxLength={500}
+            hint="Share your wishes, memories, or what makes this person special"
+          />
         </motion.div>
 
         <motion.button
           onClick={handleSubmit}
-          disabled={isSubmitting}
-          className={`w-full ${isSubmitting ? 'bg-gray-500/50 cursor-not-allowed' : 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 shadow-lg hover:shadow-purple-500/25'} text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 backdrop-blur-sm border border-white/20`}
+          disabled={isSubmitting || !isValid}
+          className={`w-full ${isSubmitting || !isValid ? 'bg-gray-500/50 cursor-not-allowed' : 'bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 hover:from-violet-500 hover:via-purple-500 hover:to-fuchsia-500 shadow-xl hover:shadow-purple-500/40'} text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 backdrop-blur-md border border-white/10 relative overflow-hidden group`}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          whileHover={!isSubmitting ? { scale: 1.02 } : {}}
-          whileTap={!isSubmitting ? { scale: 0.98 } : {}}
+          whileHover={!isSubmitting && isValid ? { scale: 1.02, translateY: -2 } : {}}
+          whileTap={!isSubmitting && isValid ? { scale: 0.98, translateY: 0 } : {}}
         >
+          <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out skew-y-12" />
           {isSubmitting ? (
             <div className="flex items-center justify-center">
               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
