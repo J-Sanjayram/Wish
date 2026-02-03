@@ -65,9 +65,6 @@ const MarriageInvitationDisplay: React.FC = () => {
       }
       
       setLoading(false);
-      
-      // Auto-start full invitation after 2 seconds
-      setTimeout(() => setShowFullInvitation(true), 2000);
     };
 
     fetchInvitation();
@@ -92,7 +89,7 @@ const MarriageInvitationDisplay: React.FC = () => {
             animate={{ opacity: [0.5, 1, 0.5] }}
             transition={{ duration: 2, repeat: Infinity }}
           >
-            Loading your magical invitation...
+            Loading 
           </motion.p>
         </motion.div>
       </div>
@@ -190,35 +187,24 @@ const MarriageInvitationDisplay: React.FC = () => {
             </motion.p>
             
             {/* Buttons Container */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">
-              {/* Play Song Button */}
-              {parsedSong && (
-                <motion.button
-                  onClick={() => setShowAudioPlayer(true)}
-                  className="px-6 py-3 rounded-full text-white font-medium transition-all duration-300 hover:scale-105 active:scale-95 hover:shadow-lg"
-                  style={{
-                    background: `linear-gradient(135deg, ${theme.primary}, ${theme.secondary})`
-                  }}
-                  whileHover={{ 
-                    boxShadow: `0 8px 25px rgba(${theme.glow}, 0.3)` 
-                  }}
-                >
-                  Play Song
-                </motion.button>
-              )}
-              
-              {/* Open Button */}
+            <div className="flex items-center justify-center">
+              {/* Single Open Button that also plays song */}
               <motion.button
-                onClick={() => setShowFullInvitation(true)}
-                className="px-6 py-3 rounded-full text-white font-medium transition-all duration-300 hover:scale-105 active:scale-95 hover:shadow-lg"
+                onClick={() => {
+                  setShowFullInvitation(true);
+                  if (parsedSong) {
+                    setShowAudioPlayer(true);
+                  }
+                }}
+                className="px-8 py-4 rounded-full text-white font-medium text-lg transition-all duration-300 hover:scale-105 active:scale-95 hover:shadow-lg"
                 style={{
-                  background: `linear-gradient(135deg, ${theme.secondary}, ${theme.accent})`
+                  background: `linear-gradient(135deg, ${theme.primary}, ${theme.secondary})`
                 }}
                 whileHover={{ 
                   boxShadow: `0 8px 25px rgba(${theme.glow}, 0.3)` 
                 }}
               >
-                Open
+                {parsedSong ? 'Open Invitation' : '💕 Open Invitation'}
               </motion.button>
             </div>
           </div>
@@ -236,7 +222,7 @@ const MarriageInvitationDisplay: React.FC = () => {
     >
       {/* Audio Player - Better positioned */}
       {showAudioPlayer && parsedSong && (
-        <div className="fixed top-4 left-4 right-4 z-[100] max-w-sm mx-auto">
+        <div className="fixed bottom-4 right-4 z-[100] max-w-xs">
           <AudioPlayer 
             song={parsedSong} 
             wisherName={`${invitation.male_name} & ${invitation.female_name}`}
@@ -355,142 +341,71 @@ const MarriageInvitationDisplay: React.FC = () => {
                   </motion.div>
                 </motion.div>
 
-                {/* Couple Photos Section with Premium Frames */}
+                {/* Simple Elegant Couple Photos */}
                 <motion.div 
-                  className="flex items-center justify-center mb-6 sm:mb-8 relative"
+                  className="mb-20 relative"
                   initial={{ y: 50, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.8, duration: 1 }}
                 >
-                  {/* Decorative Background Elements */}
-                  <motion.div 
-                    className="absolute inset-0 flex items-center justify-center"
-                    initial={{ scale: 0, rotate: -180 }}
-                    animate={{ scale: 1, rotate: 0 }}
-                    transition={{ delay: 1, duration: 2, ease: "easeOut" }}
-                  >
-                  </motion.div>
-                  
-                  <div className="relative flex items-center justify-center z-10">
-                    {/* Groom Photo with Premium Frame */}
-                    {invitation.male_image && (
-                      <motion.div
-                        className="relative z-10"
-                        whileHover={{ scale: 1.08, x: -15, rotateY: 15 }}
-                        style={{ transformStyle: 'preserve-3d' }}
-                        transition={{ duration: 0.5, ease: "easeOut" }}
-                      >
-                        <div className="relative">
-                          {/* Multi-layer Glow Effects */}
-                          <div 
-                            className="absolute -inset-4 rounded-full blur-2xl"
-                            style={{
-                              background: `linear-gradient(135deg, rgba(${theme.glow}, 0.3), rgba(${theme.glow}, 0.2))`
-                            }}
-                          />
-                          <div 
-                            className="absolute -inset-2 rounded-full blur-lg"
-                            style={{
-                              background: `linear-gradient(135deg, rgba(${theme.glow}, 0.4), rgba(${theme.glow}, 0.3))`
-                            }}
-                          />
-                          
-                          {/* Premium Frame */}
-                          <div 
-                            className="relative p-2 rounded-full backdrop-blur-sm"
-                            style={{
-                              background: `linear-gradient(135deg, ${theme.background}, ${theme.backgroundSecondary})`
-                            }}
-                          >
-                            <div 
-                              className="p-1 rounded-full"
-                              style={{
-                                background: `linear-gradient(135deg, rgba(${theme.glow}, 0.3), rgba(${theme.glow}, 0.2))`
-                              }}
-                            >
-                              <img
-                                src={invitation.male_image}
-                                alt="Groom"
-                                className="w-32 h-32 sm:w-40 sm:h-40 md:w-52 md:h-52 rounded-full object-cover border-3 border-white/80 shadow-2xl"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      </motion.div>
-                    )}
-                    
-                    {/* Heart Connection Element */}
-                    <motion.div 
-                      className="absolute z-30 text-4xl sm:text-5xl"
-                      initial={{ scale: 0, rotate: 180 }}
-                      animate={{ scale: 1, rotate: 0 }}
-                      transition={{ delay: 1.2, duration: 1, ease: "backOut" }}
-                      whileHover={{ scale: 1.2, rotate: 15 }}
-                    >
-                      💕
-                    </motion.div>
-                    
-                    {/* Bride Photo with Premium Frame */}
-                    {invitation.female_image && (
-                      <motion.div
-                        className="relative z-20 -ml-8 sm:-ml-12 md:-ml-16"
-                        whileHover={{ scale: 1.08, x: 15, rotateY: -15 }}
-                        style={{ transformStyle: 'preserve-3d' }}
-                        transition={{ duration: 0.5, ease: "easeOut" }}
-                      >
-                        <div className="relative">
-                          {/* Multi-layer Glow Effects */}
-                          <div 
-                            className="absolute -inset-4 rounded-full blur-2xl"
-                            style={{
-                              background: `linear-gradient(135deg, rgba(${theme.glow}, 0.3), rgba(${theme.glow}, 0.2))`
-                            }}
-                          />
-                          <div 
-                            className="absolute -inset-2 rounded-full blur-lg"
-                            style={{
-                              background: `linear-gradient(135deg, rgba(${theme.glow}, 0.4), rgba(${theme.glow}, 0.3))`
-                            }}
-                          />
-                          
-                          {/* Premium Frame */}
-                          <div 
-                            className="relative p-2 rounded-full backdrop-blur-sm"
-                            style={{
-                              background: `linear-gradient(135deg, ${theme.background}, ${theme.backgroundSecondary})`
-                            }}
-                          >
-                            <div 
-                              className="p-1 rounded-full"
-                              style={{
-                                background: `linear-gradient(135deg, rgba(${theme.glow}, 0.3), rgba(${theme.glow}, 0.2))`
-                              }}
-                            >
-                              <img
-                                src={invitation.female_image}
-                                alt="Bride"
-                                className="w-32 h-32 sm:w-40 sm:h-40 md:w-52 md:h-52 rounded-full object-cover border-3 border-white/80 shadow-2xl"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      </motion.div>
-                    )}
-                  </div>
-                </motion.div>
+                  <div className="max-w-4xl mx-auto text-center">
 
-                {/* Names */}
-                <motion.div
-                  className="text-center mb-8 sm:mb-12"
-                  initial={{ y: 30, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 1, duration: 1 }}
-                >
-                  <div className="relative">
-                    <h3 
-                      className="text-2xl sm:text-3xl md:text-5xl font-thin tracking-[0.2em] mb-4"
+                    
+                    {/* Photos Side by Side */}
+                    <motion.div 
+                      className="flex flex-col sm:flex-row items-center justify-center gap-8 mb-12"
+                      initial={{ scale: 0.9, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ delay: 1.2, duration: 0.8 }}
+                    >
+                      {/* Groom Photo */}
+                      {invitation.male_image && (
+                        <motion.div
+                          className="relative group"
+                          whileHover={{ scale: 1.05 }}
+                          transition={{ duration: 0.3 }}
+                        >
+                          <div 
+                            className="w-48 h-48 sm:w-56 sm:h-56 rounded-full overflow-hidden shadow-2xl border-4 border-white"
+                            style={{
+                              background: `linear-gradient(135deg, ${theme.primary}20, ${theme.secondary}20)`
+                            }}
+                          >
+                            <img
+                              src={invitation.male_image}
+                              alt={invitation.male_name}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        </motion.div>
+                      )}
+                      
+                      {/* Center Content - Names and Heart */}
+                      <motion.div 
+                        className="flex flex-col items-center text-center mx-8"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 1.5 }}
+                      >
+                        <h2 
+                          className="text-3xl sm:text-5xl font-thin mb-2"
+                          style={{
+                            fontFamily: '"Tangerine", cursive',
+                            fontWeight: 700
+                          }}
+                        >
+                          <span 
+                            style={{
+                              background: `linear-gradient(135deg, ${theme.primary}, ${theme.secondary})`,
+                              WebkitBackgroundClip: 'text',
+                              WebkitTextFillColor: 'transparent',
+                              backgroundClip: 'text'
+                            }}
+                          >
+                          <h3 
+                      className="text-3xl sm:text-3xl md:text-5xl font-thin tracking-[0.2em]"
                       style={{
-                        background: `linear-gradient(135deg, ${theme.primary}, ${theme.text}, ${theme.secondary})`,
+                        background: `linear-gradient(135deg, ${theme.secondary}, ${theme.text}, ${theme.primary})`,
                         WebkitBackgroundClip: 'text',
                         WebkitTextFillColor: 'transparent',
                         backgroundClip: 'text'
@@ -498,28 +413,19 @@ const MarriageInvitationDisplay: React.FC = () => {
                     >
                       {invitation.male_name}
                     </h3>
-                    <div className="flex items-center justify-center my-6 sm:my-8">
-                      <div 
-                        className="w-16 h-px"
-                        style={{
-                          background: `linear-gradient(to right, transparent, ${theme.primary})`
-                        }}
-                      />
-                      <span 
-                        className="mx-6 text-2xl sm:text-3xl md:text-4xl font-thin"
-                        style={{ color: theme.primary }}
-                      >
-                        &
-                      </span>
-                      <div 
-                        className="w-16 h-px"
-                        style={{
-                          background: `linear-gradient(to right, ${theme.secondary}, transparent)`
-                        }}
-                      />
-                    </div>
-                    <h3 
-                      className="text-2xl sm:text-3xl md:text-5xl font-thin tracking-[0.2em]"
+                          </span>
+                          {' '}
+                          💕{' '}
+                          <span 
+                            style={{
+                              background: `linear-gradient(135deg, ${theme.secondary}, ${theme.accent})`,
+                              WebkitBackgroundClip: 'text',
+                              WebkitTextFillColor: 'transparent',
+                              backgroundClip: 'text'
+                            }}
+                          >
+                          <h3 
+                      className="text-3xl sm:text-3xl md:text-5xl font-thin tracking-[0.2em]"
                       style={{
                         background: `linear-gradient(135deg, ${theme.secondary}, ${theme.text}, ${theme.primary})`,
                         WebkitBackgroundClip: 'text',
@@ -529,14 +435,78 @@ const MarriageInvitationDisplay: React.FC = () => {
                     >
                       {invitation.female_name}
                     </h3>
-                    <div 
-                      className="absolute -inset-4 rounded-3xl blur-2xl opacity-50"
-                      style={{
-                        background: `linear-gradient(135deg, rgba(${theme.glow}, 0.1), rgba(${theme.glow}, 0.05))`
-                      }}
-                    />
+                          </span>
+                        </h2>
+                        
+                      </motion.div>
+                      
+                      {/* Bride Photo */}
+                      {invitation.female_image && (
+                        <motion.div
+                          className="relative group"
+                          whileHover={{ scale: 1.05 }}
+                          transition={{ duration: 0.3 }}
+                        >
+                          <div 
+                            className="w-48 h-48 sm:w-56 sm:h-56 rounded-full overflow-hidden shadow-2xl border-4 border-white"
+                            style={{
+                              background: `linear-gradient(135deg, ${theme.secondary}20, ${theme.accent}20)`
+                            }}
+                          >
+                            <img
+                              src={invitation.female_image}
+                              alt={invitation.female_name}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        </motion.div>
+                      )}
+                    </motion.div>
+                    
+                    {/* Wedding Details */}
+                    <motion.div 
+                      className="max-w-2xl mx-auto"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 1.8 }}
+                    >
+                      <div 
+                        className="p-6 rounded-2xl border border-white/20 backdrop-blur-sm"
+                        style={{
+                          background: `linear-gradient(145deg, ${theme.background}50, ${theme.backgroundSecondary}30)`
+                        }}
+                      >
+                        <h3 
+                          className="text-2xl font-light mb-4"
+                          style={{ color: theme.text }}
+                        >
+                          {formatDate(invitation.marriage_date)}
+                        </h3>
+                        
+                        <p 
+                          className="text-lg font-light mb-4"
+                          style={{ color: theme.textSecondary }}
+                        >
+                          {invitation.place}
+                        </p>
+                        
+                        {invitation.additional_info && (
+                          <p 
+                            className="text-base font-light italic leading-relaxed border-t pt-4 mt-4"
+                            style={{ 
+                              color: theme.text,
+                              borderColor: `${theme.primary}30`
+                            }}
+                          >
+                            "{invitation.additional_info}"
+                          </p>
+                        )}
+                      </div>
+                    </motion.div>
                   </div>
                 </motion.div>
+
+
 
                 {/* Love Journey with Wedding Info - True Zig Zag Layout */}
                 {invitation.love_images && invitation.love_images.length > 0 && (
@@ -564,12 +534,14 @@ const MarriageInvitationDisplay: React.FC = () => {
 
                       {/* Dynamic Zig Zag Items */}
                       <div>
-                        {[
-                          { title: 'Save the Date', icon: '📅', content: formatDate(invitation.marriage_date), desc: 'The day our hearts become one forever', color: theme.primary, gradient: `linear-gradient(135deg, ${theme.primary}, ${theme.secondary})` },
-                          { title: 'Sacred Venue', icon: '🏛️', content: invitation.place, desc: 'Where our souls unite in eternal love', color: theme.secondary, gradient: `linear-gradient(135deg, ${theme.secondary}, ${theme.accent})` },
-                          ...(invitation.additional_info ? [{ title: 'From Our Hearts', icon: '💌', content: invitation.additional_info, desc: 'A message filled with love and gratitude', color: theme.accent, gradient: `linear-gradient(135deg, ${theme.accent}, ${theme.primary})` }] : []),
-                          ...(invitation.love_images && invitation.love_images.length > 3 ? [{ title: 'Our Promise', icon: '💍', content: 'Forever and Always', desc: 'A bond that will never break', color: theme.primary, gradient: `linear-gradient(135deg, ${theme.primary}, ${theme.accent})` }] : [])
-                        ].slice(0, Math.min(invitation.love_images?.length || 0, 4)).map((item, index) => {
+                        {invitation.love_images?.map((image, index) => {
+                          const items = [
+                            { title: 'Save the Date', icon: '📅', content: formatDate(invitation.marriage_date), desc: 'The day our hearts become one forever', color: theme.primary, gradient: `linear-gradient(135deg, ${theme.primary}, ${theme.secondary})` },
+                            { title: 'Sacred Venue', icon: '🏛️', content: invitation.place, desc: 'Where our souls unite in eternal love', color: theme.secondary, gradient: `linear-gradient(135deg, ${theme.secondary}, ${theme.accent})` },
+                            { title: 'From Our Hearts', icon: '💌', content: invitation.additional_info || 'A special message of love', desc: 'A message filled with love and gratitude', color: theme.accent, gradient: `linear-gradient(135deg, ${theme.accent}, ${theme.primary})` },
+                            { title: 'Our Promise', icon: '💍', content: 'Forever and Always', desc: 'A bond that will never break', color: theme.primary, gradient: `linear-gradient(135deg, ${theme.primary}, ${theme.accent})` }
+                          ];
+                          const item = items[index] || items[index % items.length];
                           const isEven = index % 2 === 0;
                           return (
                             <motion.div 
@@ -583,7 +555,7 @@ const MarriageInvitationDisplay: React.FC = () => {
                                 <motion.div className="relative group cursor-pointer" whileHover={{ scale: 1.05 }}>
                                   <div className="absolute -inset-4 rounded-3xl blur-2xl opacity-50" style={{ background: `linear-gradient(135deg, rgba(${theme.glow}, 0.3), rgba(${theme.glow}, 0.1))` }} />
                                   <div className="relative rounded-3xl overflow-hidden shadow-2xl">
-                                    <img src={invitation.love_images?.[index] || invitation.love_images?.[0]} alt={item.title} className="w-full h-full sm:h-96 object-cover" />
+                                    <img src={image} alt={item.title} className="w-full h-full sm:h-96 object-cover" />
                                   </div>
                                 </motion.div>
                               </div>

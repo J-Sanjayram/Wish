@@ -36,24 +36,23 @@ const LoadingSpinner: React.FC<{ message?: string }> = ({ message = "Loading..."
   </div>
 );
 
-// Route configuration
-const routes = [
-  {
-    path: "/",
-    element: <MainApp />
-  },
-  {
-    path: "/tools/birthday-wishes",
-    element: <MainApp defaultPage="birthday-wishes" />
-  },
-  {
-    path: "/tools/marriage-invitation",
-    element: <MarriageInvitationPage />
-  },
-  {
-    path: "/tools/remove-background",
-    element: <RemoveBackgroundPage />
-  },
+  const routes = [
+    {
+      path: "/",
+      element: <MainApp key="home" />
+    },
+    {
+      path: "/tools/birthday-wishes",
+      element: <MainApp key="birthday-wishes" defaultPage="birthday-wishes" />
+    },
+    {
+      path: "/tools/marriage-invitation",
+      element: <MarriageInvitationPage key="marriage" />
+    },
+    {
+      path: "/tools/remove-background",
+      element: <RemoveBackgroundPage key="background" />
+    },
   {
     path: "/invitation/:id",
     element: <MarriageInvitationDisplay />

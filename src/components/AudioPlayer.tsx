@@ -23,6 +23,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, wisherName, theme, isMa
   const [isPlaying, setIsPlaying] = useState(false);
   const [titleOverflows, setTitleOverflows] = useState(false);
   const [artistOverflows, setArtistOverflows] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
     const checkOverflow = () => {
@@ -144,35 +145,39 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, wisherName, theme, isMa
       </style>
       <audio ref={audioRef} src={song.previewUrl} />
       
-      <div className="flex items-center justify-between p-3">
-        <div 
-          className="text-left flex-1 overflow-hidden mr-4"
-          style={{
-            color: isMarriage && theme ? theme.text : 'white'
-          }}
-        >
-          <div className="font-medium text-xs whitespace-nowrap overflow-hidden marquee-container" ref={titleRef}>
-            <div className={titleOverflows ? "animate-marquee-title" : ""}>
-              {song.title}
-            </div>
-          </div>
+      <div className={`flex items-center transition-all duration-300 ${isExpanded ? 'justify-between p-3' : 'justify-center p-2'}`}>
+        {isExpanded && (
           <div 
-            className="text-xs whitespace-nowrap overflow-hidden marquee-container" 
-            ref={artistRef}
+            className="text-left flex-1 overflow-hidden mr-4"
             style={{
-              color: isMarriage && theme ? theme.textSecondary : 'rgba(255, 255, 255, 0.7)'
+              color: isMarriage && theme ? theme.text : 'white'
             }}
           >
-            <div className={artistOverflows ? "animate-marquee-artist" : ""}>
-              {song.artist}
+            <div className="font-medium text-xs whitespace-nowrap overflow-hidden marquee-container" ref={titleRef}>
+              <div className={titleOverflows ? "animate-marquee-title" : ""}>
+                {song.title}
+              </div>
+            </div>
+            <div 
+              className="text-xs whitespace-nowrap overflow-hidden marquee-container" 
+              ref={artistRef}
+              style={{
+                color: isMarriage && theme ? theme.textSecondary : 'rgba(255, 255, 255, 0.7)'
+              }}
+            >
+              <div className={artistOverflows ? "animate-marquee-artist" : ""}>
+                {song.artist}
+              </div>
             </div>
           </div>
-        </div>
+        )}
         
-        <div className="flex justify-end">
+        <div className="relative">
           <motion.button
             onClick={togglePlay}
-            className="w-8 h-8 rounded-full flex items-center justify-center text-white transition-all duration-300"
+            className={`rounded-full flex items-center justify-center text-white transition-all duration-300 shadow-lg ${
+              isExpanded ? 'w-12 h-12' : 'w-10 h-10'
+            }`}
             style={{
               background: isMarriage && theme ? 
                 `linear-gradient(135deg, ${theme.primary}, ${theme.secondary})` : 
@@ -182,13 +187,31 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, wisherName, theme, isMa
             whileTap={{ scale: 0.9 }}
           >
             {!isMarriage && (
-              <i className={`fas ${isPlaying ? 'fa-pause' : 'fa-play'} text-xs`} />
+              <i className={`fas ${isPlaying ? 'fa-pause' : 'fa-play'} ${isExpanded ? 'text-sm' : 'text-xs'}`} />
             )}
             {isMarriage && (
-              <div className="text-xs font-bold">
+              <div className={`font-bold ${isExpanded ? 'text-base' : 'text-sm'}`}>
                 {isPlaying ? '⏸' : '▶'}
               </div>
             )}
+          </motion.button>
+          
+          <motion.button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className={`absolute -bottom-1 -right-1 rounded-full flex items-center justify-center text-white transition-all duration-300 border-2 border-white ${
+              isExpanded ? 'w-6 h-6' : 'w-5 h-5'
+            }`}
+            style={{
+              background: isMarriage && theme ? 
+                `linear-gradient(135deg, ${theme.secondary}, ${theme.accent})` : 
+                'linear-gradient(135deg, #6366f1, #8b5cf6)'
+            }}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+          >
+            <div className="text-xs font-bold">
+              {isExpanded ? '<' : '>'}
+            </div>
           </motion.button>
         </div>
       </div>

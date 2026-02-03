@@ -1,4 +1,5 @@
 import React, { useState, useEffect, Suspense, lazy } from 'react';
+import { useLocation } from 'react-router-dom';
 import { deleteImage, deleteMarriageImage, supabase } from '../supabase';
 import { Heart } from 'lucide-react';
 import AnimatedBackground from './AnimatedBackground';

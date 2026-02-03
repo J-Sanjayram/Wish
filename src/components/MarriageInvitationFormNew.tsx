@@ -50,17 +50,9 @@ const MarriageInvitationForm: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
 
-  const validateForm = (): boolean => {
-    const newErrors: Record<string, string> = {};
-    
-    if (!formData.maleName.trim()) newErrors.maleName = 'Groom name is required';
-    if (!formData.femaleName.trim()) newErrors.femaleName = 'Bride name is required';
-    if (!formData.date) newErrors.date = 'Wedding date is required';
-    if (!formData.place.trim()) newErrors.place = 'Venue is required';
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+  const isFormValid = useMemo(() => {
+    return formData.maleName.trim() && formData.femaleName.trim() && formData.date && formData.place.trim();
+  }, [formData.maleName, formData.femaleName, formData.date, formData.place]);
 
   const isStepComplete = useMemo(() => {
     switch (currentStep) {
@@ -100,13 +92,33 @@ const MarriageInvitationForm: React.FC = () => {
     e.preventDefault();
     e.stopPropagation();
     
+    console.log('Submit triggered, loading:', loading, 'musicSelector:', isMusicSelectorOpen);
+    
+    if (loading) {
+      console.log('Form submission blocked: Already loading');
+      return;
+    }
+    
     if (isMusicSelectorOpen) {
       console.log('Form submission blocked: Music selector is open');
       return;
     }
     
-    if (!validateForm()) return;
+    // Validate and set errors
+    const newErrors: Record<string, string> = {};
+    if (!formData.maleName.trim()) newErrors.maleName = 'Groom name is required';
+    if (!formData.femaleName.trim()) newErrors.femaleName = 'Bride name is required';
+    if (!formData.date) newErrors.date = 'Wedding date is required';
+    if (!formData.place.trim()) newErrors.place = 'Venue is required';
     
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+    
+    setErrors({});
+    
+    console.log('Proceeding with form submission');
     setLoading(true);
     setUploadProgress(0);
     
@@ -257,7 +269,7 @@ const MarriageInvitationForm: React.FC = () => {
           </div>
         </motion.div> */}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="space-y-6">
           {/* Essential Details */}
           <motion.div 
             className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/20"
@@ -760,14 +772,25 @@ const MarriageInvitationForm: React.FC = () => {
           >
             <motion.button
               type="submit"
-              disabled={loading || isMusicSelectorOpen}
+              disabled={loading || isMusicSelectorOpen || !isFormValid}
+              onClick={(e) => {
+                if (loading || isMusicSelectorOpen) {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  console.log('Submission blocked: form is loading or music selector is open.');
+                  return;
+                }
+                else {
+                  handleSubmit(e);
+                }
+              }}
               className={`w-full py-4 rounded-2xl font-bold text-lg shadow-2xl transition-all duration-300 flex items-center justify-center gap-3 ${
-                loading || isMusicSelectorOpen
+                loading || isMusicSelectorOpen || !isFormValid
                   ? 'bg-gray-400 cursor-not-allowed text-white' 
                   : 'bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white hover:shadow-rose-500/25'
               }`}
-              whileHover={!loading && !isMusicSelectorOpen ? { scale: 1.02, y: -2 } : {}}
-              whileTap={!loading && !isMusicSelectorOpen ? { scale: 0.98 } : {}}
+              whileHover={!loading && !isMusicSelectorOpen && isFormValid ? { scale: 1.02, y: -2 } : {}}
+              whileTap={!loading && !isMusicSelectorOpen && isFormValid ? { scale: 0.98 } : {}}
             >
               {loading ? (
                 <>
@@ -797,7 +820,7 @@ const MarriageInvitationForm: React.FC = () => {
               )}
             </motion.button>
           </motion.div>
-        </form>
+        </div>
 
         
       </div>

@@ -152,13 +152,16 @@ export const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
       {!originalImage ? (
         <motion.div
           onClick={() => fileInputRef.current?.click()}
-          className="border-2 border-dashed border-white/30 rounded-xl p-8 text-center cursor-pointer hover:border-white/50 transition-colors bg-white/5"
-          whileHover={{ scale: 1.02 }}
+          className="border-2 border-dashed border-white/40 rounded-2xl p-8 text-center cursor-pointer hover:border-white/60 transition-all duration-300 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm hover:bg-gradient-to-br hover:from-white/15 hover:to-white/10 shadow-xl"
+          whileHover={{ scale: 1.02, y: -2 }}
           whileTap={{ scale: 0.98 }}
         >
-          <Upload className="w-12 h-12 text-white/60 mx-auto mb-3" />
-          <p className="text-white/80 mb-1">Upload {getUserTypeLabel()} Photo</p>
-          <p className="text-white/60 text-sm">JPG, PNG up to 5MB</p>
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-full blur-2xl" />
+            <Upload className="w-12 h-12 text-white/70 mx-auto mb-4 relative z-10" />
+          </div>
+          <p className="text-white/90 mb-2 font-medium">Upload {getUserTypeLabel()} Photo</p>
+          <p className="text-white/60 text-sm">JPG, PNG up to 5MB • Best quality for perfect results</p>
         </motion.div>
       ) : (
         <div className="space-y-4">
@@ -168,11 +171,11 @@ export const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
-                className="bg-white/10 rounded-xl p-4 backdrop-blur-sm"
+                className="bg-gradient-to-br from-white/15 to-white/5 rounded-2xl p-6 backdrop-blur-md border border-white/20 shadow-2xl"
               >
-                <h4 className="text-white font-medium mb-3">Crop Your Photo</h4>
+                <h4 className="text-white font-semibold mb-4 text-lg">Crop Your Photo</h4>
                 
-                <div className="relative h-80 bg-black/20 rounded-lg overflow-hidden mb-4">
+                <div className="relative h-80 bg-gradient-to-br from-black/30 to-black/10 rounded-xl overflow-hidden mb-6 border border-white/10">
                   <Cropper
                     image={originalImage}
                     crop={crop}
@@ -186,17 +189,17 @@ export const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
                   />
                 </div>
                 
-                <div className="flex gap-2">
+                <div className="flex gap-3">
                   <button
                     onClick={handleCropDone}
-                    className="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+                    className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white py-3 px-6 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl hover:scale-105"
                   >
                     <Crop className="w-4 h-4" />
                     Crop Photo
                   </button>
                   <button
                     onClick={reset}
-                    className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
+                    className="px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white rounded-xl transition-all duration-300 font-medium shadow-lg hover:shadow-xl hover:scale-105"
                   >
                     Cancel
                   </button>
@@ -214,14 +217,24 @@ export const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
               <h4 className="text-white font-medium mb-3">Cropped Photo</h4>
               <div className="flex flex-col sm:flex-row gap-4 items-start">
                 <div className="relative">
-                  <img
-                    src={processedImage || croppedImage}
-                    alt="Cropped"
-                    className="w-32 h-32 object-cover rounded-full border-2 border-white/20"
-                  />
+                  {/* Multi-layer Glow Effects */}
+                  <div className="absolute -inset-3 rounded-full blur-xl bg-gradient-to-r from-purple-500/30 to-pink-500/30" />
+                  <div className="absolute -inset-2 rounded-full blur-lg bg-gradient-to-r from-purple-400/40 to-pink-400/40" />
+                  
+                  {/* Premium Frame */}
+                  <div className="relative p-2 rounded-full backdrop-blur-sm bg-gradient-to-br from-white/20 to-white/10 border border-white/30">
+                    <div className="p-1 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20">
+                      <img
+                        src={processedImage || croppedImage}
+                        alt="Cropped"
+                        className="w-32 h-32 object-cover rounded-full border-2 border-white/50 shadow-2xl"
+                      />
+                    </div>
+                  </div>
+                  
                   {processedImage && (
-                    <div className="absolute -top-2 -right-2 bg-green-500 text-white rounded-full p-1">
-                      <Check className="w-3 h-3" />
+                    <div className="absolute -top-2 -right-2 bg-gradient-to-r from-green-400 to-emerald-500 text-white rounded-full p-2 shadow-lg border-2 border-white/30">
+                      <Check className="w-4 h-4" />
                     </div>
                   )}
                 </div>

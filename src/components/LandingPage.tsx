@@ -47,7 +47,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                 
                 <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold text-white mb-8 mt-8 leading-[0.9]">
                   Create Beautiful
-                  <span className="block bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-400 bg-clip-text text-transparent">
+                  <span className="block bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-400 bg-clip-text text-transparent leading-tight">
                     Digital Experiences
                   </span>
                 </h1>

@@ -87,6 +87,22 @@ const Navigation: React.FC<NavigationProps> = ({ onNavigate, currentPage }) => {
     }
   ];
 
+  // Get current page from URL
+  const getCurrentPageFromPath = useCallback(() => {
+    const path = location.pathname;
+    if (path === '/') return 'home';
+    if (path === '/tools/birthday-wishes') return 'birthday-wishes';
+    if (path === '/tools/marriage-invitation') return 'marriage-invitation';
+    if (path === '/tools/remove-background') return 'remove-background';
+    if (path === '/manage') return 'manage';
+    // Check for dynamic routes
+    if (path.startsWith('/invitation/') || path.startsWith('/marriage-invitation/')) return 'marriage-invitation';
+    if (path.startsWith('/delete')) return 'manage';
+    return currentPage;
+  }, [location.pathname, currentPage]);
+
+  const activePage = getCurrentPageFromPath();
+
   // Handle scroll effect
   useEffect(() => {
     const handleScroll = () => {
@@ -167,7 +183,7 @@ const Navigation: React.FC<NavigationProps> = ({ onNavigate, currentPage }) => {
                 <motion.button
                   onClick={() => handleNavigation(item)}
                   className={`relative flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-300 ${
-                    currentPage === item.key 
+                    activePage === item.key 
                       ? 'text-white bg-gradient-to-r from-purple-500/30 to-indigo-500/30 shadow-lg border border-purple-400/40' 
                       : 'text-white/80 hover:text-white hover:bg-white/10'
                   }`}
@@ -247,7 +263,7 @@ const Navigation: React.FC<NavigationProps> = ({ onNavigate, currentPage }) => {
                     key={item.key}
                     onClick={() => handleNavigation(item)}
                     className={`flex items-center gap-3 w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 group ${
-                      currentPage === item.key 
+                      activePage === item.key 
                         ? 'text-white bg-gradient-to-r from-purple-500/30 to-indigo-500/30 border border-purple-400/40 shadow-lg' 
                         : 'text-white/80 hover:text-white hover:bg-white/10'
                     }`}
@@ -258,7 +274,7 @@ const Navigation: React.FC<NavigationProps> = ({ onNavigate, currentPage }) => {
                     whileTap={{ scale: 0.98 }}
                   >
                     <span className={`transition-colors duration-300 ${
-                      currentPage === item.key ? 'text-purple-300' : 'text-white/60 group-hover:text-white'
+                      activePage === item.key ? 'text-purple-300' : 'text-white/60 group-hover:text-white'
                     }`}>
                       {item.icon}
                     </span>
