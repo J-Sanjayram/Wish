@@ -2,6 +2,7 @@ import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import ErrorBoundary from '../components/ErrorBoundary';
+import InvitationCleanupService from '../components/InvitationCleanupService';
 
 // Lazy loaded components
 const MainApp = React.lazy(() => import('../components/MainApp'));
@@ -84,6 +85,7 @@ const AppRouter: React.FC = () => {
   return (
     <Router>
       <ErrorBoundary>
+        <InvitationCleanupService />
         <Suspense fallback={<LoadingSpinner />}>
           <Routes>
             {routes.map((route, index) => (

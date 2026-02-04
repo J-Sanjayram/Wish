@@ -80,3 +80,54 @@ export const deleteMarriageImage = async (fileId: string): Promise<boolean> => {
     
   return !error;
 };
+
+export const deleteExpiredMarriageInvitation = async (invitationId: string): Promise<boolean> => {
+  try {
+    const { error: dbError } = await supabase
+      .from('marriage_invitations')
+      .delete()
+      .eq('id', invitationId);
+    
+    if (dbError) {
+      console.error('Error deleting from database:', dbError);
+      return false;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Error in deleteExpiredMarriageInvitation:', error);
+    return false;
+  }
+};
+
+export const checkAndDeleteExpiredInvitations = async (): Promise<void> => {
+  try {
+    const today = new Date();
+    const oneDayAgo = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+    
+    const { data: expiredInvitations, error } = await supabase
+      .from('marriage_invitations')
+      .select('id, marriage_date')
+      .lt('marriage_date', oneDayAgo.toISOString().split('T')[0]);
+    
+    if (error) {
+      console.error('Error fetching expired invitations:', error);
+      return;
+    }
+    
+    if (expiredInvitations && expiredInvitations.length > 0) {
+      const { error: deleteError } = await supabase
+        .from('marriage_invitations')
+        .delete()
+        .in('id', expiredInvitations.map(inv => inv.id));
+      
+      if (deleteError) {
+        console.error('Error deleting expired invitations:', deleteError);
+      } else {
+        console.log(`Deleted ${expiredInvitations.length} expired invitations`);
+      }
+    }
+  } catch (error) {
+    console.error('Error in checkAndDeleteExpiredInvitations:', error);
+  }
+};

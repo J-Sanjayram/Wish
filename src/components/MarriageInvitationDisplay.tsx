@@ -1,9 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import { supabase } from '../supabase';
+import { supabase, checkAndDeleteExpiredInvitations } from '../supabase';
 import { motion, AnimatePresence } from 'framer-motion';
 import AudioPlayer from './AudioPlayer';
 import { generateColorTheme, generateThemeCSS, ColorTheme } from '../utils/colorTheme';
+
+// Declare dotlottie-player for TypeScript
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      'dotlottie-player': any;
+    }
+  }
+}
 
 interface MarriageInvitation {
   id: string;
@@ -35,10 +44,39 @@ const MarriageInvitationDisplay: React.FC = () => {
     startTime: number;
     duration: number;
   } | null>(null);
+  const [isExpired, setIsExpired] = useState(false);
+  const lottieRef = useRef<any>(null);
+
+  useEffect(() => {
+    if (showFullInvitation) {
+      const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const duration = scrollHeight * 20; // 20ms per pixel for slow scroll
+      
+      const startTime = Date.now();
+      const startPosition = window.pageYOffset;
+      
+      const scroll = () => {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const position = startPosition + (scrollHeight * progress);
+        
+        window.scrollTo(0, position);
+        
+        if (progress < 1) {
+          requestAnimationFrame(scroll);
+        }
+      };
+      
+      setTimeout(() => scroll(), 2000); // Start after 1 second
+    }
+  }, [showFullInvitation]);
 
   useEffect(() => {
     const fetchInvitation = async () => {
       if (!id) return;
+
+      // Check and delete expired invitations first
+      await checkAndDeleteExpiredInvitations();
 
       const { data, error } = await supabase
         .from('marriage_invitations')
@@ -47,6 +85,17 @@ const MarriageInvitationDisplay: React.FC = () => {
         .single();
 
       if (error || !data) {
+        setLoading(false);
+        return;
+      }
+
+      // Check if this invitation has expired (1 day after wedding date)
+      const weddingDate = new Date(data.marriage_date);
+      const today = new Date();
+      const oneDayAfterWedding = new Date(weddingDate.getTime() + 24 * 60 * 60 * 1000);
+      
+      if (today > oneDayAfterWedding) {
+        setIsExpired(true);
         setLoading(false);
         return;
       }
@@ -67,7 +116,19 @@ const MarriageInvitationDisplay: React.FC = () => {
       setLoading(false);
     };
 
+    // Load dotlottie-player script
+    const script = document.createElement('script');
+    script.src = 'https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs';
+    script.type = 'module';
+    document.head.appendChild(script);
+
     fetchInvitation();
+
+    return () => {
+      if (document.head.contains(script)) {
+        document.head.removeChild(script);
+      }
+    };
   }, [id]);
 
   if (loading) {
@@ -96,13 +157,27 @@ const MarriageInvitationDisplay: React.FC = () => {
     );
   }
 
-  if (!invitation) {
+  if (!invitation || isExpired) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-rose-900 via-purple-900 to-indigo-900 flex items-center justify-center">
         <div className="text-center text-white">
-          <div className="text-8xl mb-6">💔</div>
-          <h2 className="text-3xl font-light mb-4">Invitation Not Found</h2>
-          <p className="text-rose-300">This invitation may have expired or doesn't exist.</p>
+          <div className="text-8xl mb-6">❤️</div>
+          <h2 className="text-3xl font-light mb-4">
+            {isExpired ? 'Invitation Expired' : 'Invitation Not Found'}
+          </h2>
+          <p className="text-rose-300">
+            {isExpired 
+              ? 'This wedding invitation has expired and is no longer available.' 
+              : 'This invitation may have expired or doesn\'t exist.'}
+          </p>
+          <motion.button
+            onClick={() => window.location.href = '/'}
+            className="mt-8 px-6 py-3 bg-rose-600 hover:bg-rose-700 rounded-full text-white font-medium transition-colors"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            Create New Invitation
+          </motion.button>
         </div>
       </div>
     );
@@ -159,14 +234,24 @@ const MarriageInvitationDisplay: React.FC = () => {
           
           <div className="p-4 sm:p-6 md:p-8 text-center text-white z-10">
             <motion.div
-              className="text-6xl sm:text-8xl mb-8"
+              className="text-6xl sm:text-8xl mb-8 flex items-center justify-center"
               animate={{ 
                 rotate: [0, 10, -10, 0],
                 scale: [1, 1.1, 1]
               }}
               transition={{ duration: 3, repeat: Infinity }}
             >
-              💕
+             <dotlottie-player
+                ref={lottieRef}
+                src="/Wedding.lottie"
+                background="transparent"
+                speed="0.7"
+                style={{ width: '140px', height: '140px' }}
+                loop
+                playmode='bounce'
+                autoplay
+                className="mx-auto"
+              />
             </motion.div>
             <motion.h1 
               className="text-4xl sm:text-5xl md:text-7xl font-thin mb-6 bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent"
@@ -175,16 +260,25 @@ const MarriageInvitationDisplay: React.FC = () => {
               }}
               transition={{ duration: 3, repeat: Infinity }}
             >
-              {invitation.male_name} & {invitation.female_name}
+              {invitation.male_name} <br/>&<br/> {invitation.female_name}
             </motion.h1>
-            <motion.p 
-              className="text-xl sm:text-2xl text-emerald-300 font-light mb-8"
+            <motion.div 
+              className="text-xl sm:text-2xl text-emerald-300 font-light mb-8 flex items-center justify-center gap-4"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 1 }}
             >
-              are getting married
-            </motion.p>
+              <span>are getting married</span>
+              {/* <dotlottie-player
+                ref={lottieRef}
+                src="/Wedding.lottie"
+                background="transparent"
+                speed="1"
+                style={{ width: '40px', height: '40px' }}
+                loop
+                autoplay
+              /> */}
+            </motion.div>
             
             {/* Buttons Container */}
             <div className="flex items-center justify-center">
@@ -351,116 +445,104 @@ const MarriageInvitationDisplay: React.FC = () => {
                   <div className="max-w-4xl mx-auto text-center">
 
                     
-                    {/* Photos Side by Side */}
+                    {/* Photos Left and Right Layout */}
+<motion.div 
+  className="flex items-center justify-center sm:gap-1 md:gap-2 max-w-5xl mx-auto mb-8 px-4"
+  initial={{ scale: 0.9, opacity: 0 }}
+  animate={{ scale: 1, opacity: 1 }}
+  transition={{ delay: 1.2, duration: 0.8 }}
+>
+  {/* Groom Photo - Left */}
+  {invitation.male_image && (
+    <motion.div
+      className="relative group flex-shrink-0  z-10" // Added negative margin for overlap and z-index for layering
+      initial={{ x: -100, opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      transition={{ delay: 1.4, duration: 0.8 }}
+      whileHover={{ scale: 1.05 }}
+    >
+      <div 
+        className="w-40 h-40 sm:w-56 sm:h-56 rounded-full overflow-hidden shadow-2xl border-b-2 border-white"
+        style={{
+          borderColor:theme.primary,
+          background: `linear-gradient(135deg, ${theme.primary}20, ${theme.secondary}20)`
+        }}
+      >
+        <img
+          src={invitation.male_image}
+          alt={invitation.male_name}
+          className="w-full h-full object-cover"
+        />
+      </div>
+    </motion.div>
+  )}
+  
+  {/* Bride Photo - Right */}
+  {invitation.female_image && (
+    <motion.div
+      className="relative group flex-shrink-0 " // Added negative margin for overlap
+      initial={{ x: 100, opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      transition={{ delay: 1.4, duration: 0.8 }}
+      whileHover={{ scale: 1.05 }}
+    >
+      <div 
+        className="w-40 h-40 sm:w-56 sm:h-56 rounded-full overflow-hidden shadow-2xl border-b-2 border-white"
+        style={{
+          borderColor:theme.primary,
+          background: `linear-gradient(135deg, ${theme.secondary}20, ${theme.accent}20)`
+        }}
+      >
+        <img
+          src={invitation.female_image}
+          alt={invitation.female_name}
+          className="w-full h-full object-cover"
+        />
+      </div>
+    </motion.div>
+  )}
+</motion.div>
+
+                    
+                    {/* Names Below Photos */}
                     <motion.div 
-                      className="flex flex-col sm:flex-row items-center justify-center gap-8 mb-12"
-                      initial={{ scale: 0.9, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      transition={{ delay: 1.2, duration: 0.8 }}
+                      className="text-center mb-12"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 1.6 }}
                     >
-                      {/* Groom Photo */}
-                      {invitation.male_image && (
-                        <motion.div
-                          className="relative group"
-                          whileHover={{ scale: 1.05 }}
-                          transition={{ duration: 0.3 }}
-                        >
-                          <div 
-                            className="w-48 h-48 sm:w-56 sm:h-56 rounded-full overflow-hidden shadow-2xl border-4 border-white"
-                            style={{
-                              background: `linear-gradient(135deg, ${theme.primary}20, ${theme.secondary}20)`
-                            }}
-                          >
-                            <img
-                              src={invitation.male_image}
-                              alt={invitation.male_name}
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                        </motion.div>
-                      )}
-                      
-                      {/* Center Content - Names and Heart */}
-                      <motion.div 
-                        className="flex flex-col items-center text-center mx-8"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 1.5 }}
+                      <h2 
+                        className="text-3xl sm:text-5xl font-thin mb-2"
+                        style={{
+                          fontFamily: '"Tangerine", cursive',
+                          fontWeight: 700
+                        }}
                       >
-                        <h2 
-                          className="text-3xl sm:text-5xl font-thin mb-2"
+                        <h3 
+                          className="text-3xl sm:text-3xl md:text-5xl font-thin tracking-[0.2em]"
                           style={{
-                            fontFamily: '"Tangerine", cursive',
-                            fontWeight: 700
+                            background: `linear-gradient(135deg, ${theme.secondary}, ${theme.text}, ${theme.primary})`,
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                            backgroundClip: 'text'
                           }}
                         >
-                          <span 
-                            style={{
-                              background: `linear-gradient(135deg, ${theme.primary}, ${theme.secondary})`,
-                              WebkitBackgroundClip: 'text',
-                              WebkitTextFillColor: 'transparent',
-                              backgroundClip: 'text'
-                            }}
-                          >
-                          <h3 
-                      className="text-3xl sm:text-3xl md:text-5xl font-thin tracking-[0.2em]"
-                      style={{
-                        background: `linear-gradient(135deg, ${theme.secondary}, ${theme.text}, ${theme.primary})`,
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
-                        backgroundClip: 'text'
-                      }}
-                    >
-                      {invitation.male_name}
-                    </h3>
-                          </span>
-                          {' '}
-                          💕{' '}
-                          <span 
-                            style={{
-                              background: `linear-gradient(135deg, ${theme.secondary}, ${theme.accent})`,
-                              WebkitBackgroundClip: 'text',
-                              WebkitTextFillColor: 'transparent',
-                              backgroundClip: 'text'
-                            }}
-                          >
-                          <h3 
-                      className="text-3xl sm:text-3xl md:text-5xl font-thin tracking-[0.2em]"
-                      style={{
-                        background: `linear-gradient(135deg, ${theme.secondary}, ${theme.text}, ${theme.primary})`,
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
-                        backgroundClip: 'text'
-                      }}
-                    >
-                      {invitation.female_name}
-                    </h3>
-                          </span>
-                        </h2>
-                        
-                      </motion.div>
-                      
-                      {/* Bride Photo */}
-                      {invitation.female_image && (
-                        <motion.div
-                          className="relative group"
-                          whileHover={{ scale: 1.05 }}
-                          transition={{ duration: 0.3 }}
+                          {invitation.male_name}
+                        </h3>
+                        {' '}
+                        💕{' '}
+                        <h3 
+                          className="text-3xl sm:text-3xl md:text-5xl font-thin tracking-[0.2em]"
+                          style={{
+                            background: `linear-gradient(135deg, ${theme.secondary}, ${theme.text}, ${theme.primary})`,
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                            backgroundClip: 'text'
+                          }}
                         >
-                          <div 
-                            className="w-48 h-48 sm:w-56 sm:h-56 rounded-full overflow-hidden shadow-2xl border-4 border-white"
-                            style={{
-                              background: `linear-gradient(135deg, ${theme.secondary}20, ${theme.accent}20)`
-                            }}
-                          >
-                            <img
-                              src={invitation.female_image}
-                              alt={invitation.female_name}
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                        </motion.div>
-                      )}
+                          {invitation.female_name}
+                        </h3>
+                      </h2>
                     </motion.div>
                     
                     {/* Wedding Details */}
@@ -583,85 +665,139 @@ const MarriageInvitationDisplay: React.FC = () => {
                   </motion.div>
                 )}
 
-                {/* Elegant Footer */}
+                {/* Premium Elegant Footer */}
                 <motion.div 
-                  className="text-center pt-6 sm:pt-8 border-t relative"
-                  style={{ borderColor: theme.border }}
+                  className="relative  sm:pt-20 pb-12 sm:pb-16 overflow-hidden"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 2.4, duration: 1 }}
                 >
-                  <div 
-                    className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-12 h-12 sm:w-16 sm:h-16 rounded-full blur-xl"
-                    style={{
-                      background: `linear-gradient(135deg, rgba(${theme.glow}, 0.2), rgba(${theme.glow}, 0.1))`
-                    }}
-                  />
-                  
-                  <motion.div
-                    className="mb-6 sm:mb-8"
-                    animate={{ opacity: [0.7, 1, 0.7] }}
-                    transition={{ duration: 4, repeat: Infinity }}
-                  >
-                    <p 
-                      className="text-base sm:text-lg md:text-xl font-light mb-2 sm:mb-3 tracking-wide"
-                      style={{ color: theme.text }}
+                  {/* Modern Content Container */}
+                  <div className="relative max-w-4xl mx-auto">
+                    <motion.div
+                      className="relative backdrop-blur-xl rounded-3xl border border-white/10 p-8 sm:p-12"
+                      style={{
+                        background: `linear-gradient(145deg, rgba(${theme.glow}, 0.05), rgba(${theme.glow}, 0.02))`
+                      }}
+                      whileHover={{ 
+                        scale: 1.02,
+                        boxShadow: `0 25px 50px -12px rgba(${theme.glow}, 0.25)`
+                      }}
+                      transition={{ duration: 0.3 }}
                     >
-                      🌹 Join us as we unite in holy matrimony 🌹
-                    </p>
-                    <p 
-                      className="text-sm sm:text-base font-light italic"
-                      style={{ color: theme.textSecondary }}
-                    >
-                      💒 Your blessed presence would make our sacred day complete 💒
-                    </p>
-                  </motion.div>
-                  
-                  <motion.div 
-                    className="flex flex-col items-center gap-4 sm:gap-6"
-                    animate={{ y: [0, -4, 0] }}
-                    transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-                  >
-                    <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4">
-                      <motion.span 
-                        className="text-2xl sm:text-3xl"
-                        style={{ color: theme.primary }}
-                        animate={{ rotate: [0, 15, -15, 0] }}
-                        transition={{ duration: 3, repeat: Infinity }}
+                      {/* Main Content Grid */}
+                      <div className="grid md:grid-cols-2 gap-8 sm:gap-12">
+                        {/* Left Column - Invitation Text */}
+                        <motion.div
+                          className="text-center md:text-left"
+                          initial={{ x: -50, opacity: 0 }}
+                          animate={{ x: 0, opacity: 1 }}
+                          transition={{ delay: 2.6, duration: 1 }}
+                        >
+                          <h3 
+                            className="text-2xl sm:text-3xl md:text-4xl font-thin mb-4 sm:mb-6 leading-relaxed"
+                            style={{
+                              fontFamily: '"Tangerine", cursive',
+                              fontWeight: 700,
+                              background: `linear-gradient(135deg, ${theme.primary}, ${theme.secondary})`,
+                              WebkitBackgroundClip: 'text',
+                              WebkitTextFillColor: 'transparent',
+                              backgroundClip: 'text'
+                            }}
+                          >
+                            Join Our Celebration
+                          </h3>
+                          
+                          <p 
+                            className="text-base sm:text-lg font-light mb-4 leading-relaxed"
+                            style={{ color: theme.text }}
+                          >
+                            We would be honored to have you witness our union and share in the joy of our special day.
+                          </p>
+                          
+                          <p 
+                            className="text-sm sm:text-base font-light italic"
+                            style={{ color: theme.textSecondary }}
+                          >
+                            Your presence is the greatest gift we could ask for.
+                          </p>
+                        </motion.div>
+                        
+                        {/* Right Column - Details */}
+                        <motion.div
+                          className="text-center md:text-right"
+                          initial={{ x: 50, opacity: 0 }}
+                          animate={{ x: 0, opacity: 1 }}
+                          transition={{ delay: 2.8, duration: 1 }}
+                        >
+                          <div
+                            className="inline-block px-6 sm:px-8 py-4 sm:py-6 rounded-2xl border border-white/20 backdrop-blur-sm mb-6"
+                            style={{
+                              background: `linear-gradient(135deg, rgba(${theme.glow}, 0.1), rgba(${theme.glow}, 0.05))`
+                            }}
+                          >
+                            <h4 
+                              className="text-lg sm:text-xl font-light mb-3 tracking-wide"
+                              style={{ color: theme.text }}
+                            >
+                              SAVE THE DATE
+                            </h4>
+                            
+                            <p 
+                              className="text-sm sm:text-base font-light"
+                              style={{ color: theme.textSecondary }}
+                            >
+                              Mark your calendar for our special day
+                            </p>
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <p 
+                              className="text-sm font-light tracking-wider"
+                              style={{ color: theme.textSecondary }}
+                            >
+                              WITH LOVE & GRATITUDE
+                            </p>
+                          </div>
+                        </motion.div>
+                      </div>
+                      
+                      {/* Bottom Decorative Line */}
+                      <motion.div 
+                        className="flex justify-center mt-8 sm:mt-12"
+                        animate={{ opacity: [0.3, 0.7, 0.3] }}
+                        transition={{ duration: 5, repeat: Infinity }}
                       >
-                        💖
-                      </motion.span>
-                      <span 
-                        className="font-light text-sm sm:text-base md:text-lg tracking-widest text-center"
-                        style={{ color: theme.text }}
+                        <div 
+                          className="w-32 sm:w-48 h-px"
+                          style={{
+                            background: `linear-gradient(to right, transparent, ${theme.primary}, transparent)`
+                          }}
+                        />
+                      </motion.div>
+                      
+                      {/* Create Another Invitation Button */}
+                      <motion.div 
+                        className="flex justify-center mt-8 sm:mt-12"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 3, duration: 1 }}
                       >
-                        💕 With Eternal Love & Divine Blessings 💕
-                      </span>
-                      <motion.span 
-                        className="text-2xl sm:text-3xl"
-                        style={{ color: theme.primary }}
-                        animate={{ rotate: [0, -15, 15, 0] }}
-                        transition={{ duration: 3, repeat: Infinity, delay: 1.5 }}
-                      >
-                        💖
-                      </motion.span>
-                    </div>
-                    
-                    <div 
-                      className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm tracking-widest"
-                      style={{ color: theme.textSecondary }}
-                    >
-                      <div 
-                        className="w-4 h-px"
-                        style={{ backgroundColor: theme.textSecondary }}
-                      />
-                      <span className="font-light">💌 BLESSED RSVP REQUESTED 💌</span>
-                      <div 
-                        className="w-4 h-px"
-                        style={{ backgroundColor: theme.textSecondary }}
-                      />
-                    </div>
-                  </motion.div>
+                        <motion.button
+                          onClick={() => window.open('/', '_blank')}
+                          className="px-6 py-3 rounded-full text-white font-medium text-sm transition-all duration-300 hover:scale-105 active:scale-95"
+                          style={{
+                            background: `linear-gradient(135deg, ${theme.primary}, ${theme.secondary})`
+                          }}
+                          whileHover={{ 
+                            boxShadow: `0 8px 25px rgba(${theme.glow}, 0.3)` 
+                          }}
+                        >
+                          Create Another Invitation
+                        </motion.button>
+                      </motion.div>
+                    </motion.div>
+                  </div>
                 </motion.div>
             </div>
           </div>

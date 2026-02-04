@@ -29,22 +29,17 @@ const RemoveBackground: React.FC = () => {
     try {
       const { removeBackground } = await import('@imgly/background-removal');
       
-      const img = new Image();
-      img.crossOrigin = 'anonymous';
-      await new Promise((resolve, reject) => {
-        img.onload = resolve;
-        img.onerror = reject;
-        img.src = originalImage;
-      });
+      const response = await fetch(originalImage);
+      const blob = await response.blob();
       
-      const blob = await removeBackground(originalImage);
+      const resultBlob = await removeBackground(blob);
       
-      const url = URL.createObjectURL(blob);
+      const url = URL.createObjectURL(resultBlob);
       setProcessedImage(url);
       
     } catch (error) {
       console.error('Error:', error);
-      alert('Error processing image. Please try again.');
+      alert('Background removal service is currently unavailable. Please try again later.');
     } finally {
       setIsProcessing(false);
     }
