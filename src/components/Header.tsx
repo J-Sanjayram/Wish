@@ -58,7 +58,7 @@ const Header: React.FC = () => {
         <div className="flex items-center gap-6 pt-4">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-            <span className="text-white/80 text-sm font-medium">Lumira Studio</span>
+            <span className="text-white/80 text-sm font-medium">Unfoldly Studio</span>
           </div>
           <div className="flex items-center gap-2">
             

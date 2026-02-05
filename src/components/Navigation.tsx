@@ -59,7 +59,8 @@ const Navigation: React.FC<NavigationProps> = ({ onNavigate, currentPage }) => {
       key: 'manage', 
       label: 'Manage Images', 
       icon: <Image className="w-4 h-4" />, 
-      description: 'Organize your creations'
+      description: 'Organize your creations',
+      route: '/manage'
     },
     { 
       key: 'about', 
@@ -165,7 +166,7 @@ const Navigation: React.FC<NavigationProps> = ({ onNavigate, currentPage }) => {
               <span className="text-lg text-white font-bold">L</span>
             </motion.div>
             <div className="flex flex-col">
-              <span className="text-white font-bold text-lg tracking-tight">Lumira</span>
+              <span className="text-white font-bold text-lg tracking-tight">Unfoldly</span>
               <span className="text-white/60 text-xs font-medium">Creative Studio</span>
             </div>
           </motion.div>

@@ -14,9 +14,10 @@ interface AudioPlayerProps {
   wisherName: string;
   theme?: ColorTheme;
   isMarriage?: boolean;
+  noTimeLimit?: boolean;
 }
 
-const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, wisherName, theme, isMarriage = false }) => {
+const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, wisherName, theme, isMarriage = false, noTimeLimit = false }) => {
   const audioRef = useRef<HTMLAudioElement>(null);
   const titleRef = useRef<HTMLDivElement>(null);
   const artistRef = useRef<HTMLDivElement>(null);
@@ -50,18 +51,21 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, wisherName, theme, isMa
       // Play immediately when audio loads
       audio.play().then(() => {
         setIsPlaying(true);
-        // Stop after 30 seconds
-        setTimeout(() => {
-          audio.pause();
-          setIsPlaying(false);
-        }, song.duration * 1000);
+        if (!noTimeLimit) {
+          setTimeout(() => {
+            audio.pause();
+            setIsPlaying(false);
+          }, song.duration * 1000);
+        }
       }).catch(() => {
         console.log('Autoplay blocked');
       });
     };
 
     const handleEnded = () => {
-      setIsPlaying(false);
+      if (!noTimeLimit) {
+        setIsPlaying(false);
+      }
     };
 
     audio.addEventListener('loadeddata', handleLoadedData);
@@ -73,10 +77,12 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, wisherName, theme, isMa
         audio.currentTime = song.startTime;
         audio.play().then(() => {
           setIsPlaying(true);
-          setTimeout(() => {
-            audio.pause();
-            setIsPlaying(false);
-          }, song.duration * 1000);
+          if (!noTimeLimit) {
+            setTimeout(() => {
+              audio.pause();
+              setIsPlaying(false);
+            }, song.duration * 1000);
+          }
         }).catch(() => {
           console.log('Autoplay blocked');
         });
@@ -100,11 +106,12 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, wisherName, theme, isMa
       audio.currentTime = song.startTime;
       audio.play().then(() => {
         setIsPlaying(true);
-        // Stop after 30 seconds
-        setTimeout(() => {
-          audio.pause();
-          setIsPlaying(false);
-        }, song.duration * 1000);
+        if (!noTimeLimit) {
+          setTimeout(() => {
+            audio.pause();
+            setIsPlaying(false);
+          }, song.duration * 1000);
+        }
       }).catch(console.error);
     }
   };

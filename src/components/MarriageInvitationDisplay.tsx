@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { supabase, checkAndDeleteExpiredInvitations } from '../supabase';
 import { motion, AnimatePresence } from 'framer-motion';
 import AudioPlayer from './AudioPlayer';
+import AdsterraSocialBanner from './AdsterraSocialBanner';
 import { generateColorTheme, generateThemeCSS, ColorTheme } from '../utils/colorTheme';
 
 // Declare dotlottie-player for TypeScript
@@ -20,6 +21,7 @@ interface MarriageInvitation {
   female_name: string;
   marriage_date: string;
   place: string;
+  map_venue?: string;
   song: string;
   additional_info: string;
   images: string[];
@@ -54,20 +56,44 @@ const MarriageInvitationDisplay: React.FC = () => {
       
       const startTime = Date.now();
       const startPosition = window.pageYOffset;
+      let autoScrollActive = true;
+      
+      const stopAutoScroll = () => {
+        autoScrollActive = false;
+        window.removeEventListener('wheel', stopAutoScroll);
+        window.removeEventListener('touchmove', stopAutoScroll);
+        window.removeEventListener('keydown', stopAutoScroll);
+      };
+      
+      window.addEventListener('wheel', stopAutoScroll);
+      window.addEventListener('touchmove', stopAutoScroll);
+      window.addEventListener('keydown', stopAutoScroll);
       
       const scroll = () => {
+        if (!autoScrollActive) return;
+        
         const elapsed = Date.now() - startTime;
         const progress = Math.min(elapsed / duration, 1);
         const position = startPosition + (scrollHeight * progress);
         
         window.scrollTo(0, position);
         
-        if (progress < 1) {
+        if (progress < 1 && autoScrollActive) {
           requestAnimationFrame(scroll);
+        } else {
+          window.removeEventListener('wheel', stopAutoScroll);
+          window.removeEventListener('touchmove', stopAutoScroll);
+          window.removeEventListener('keydown', stopAutoScroll);
         }
       };
       
-      setTimeout(() => scroll(), 2000); // Start after 1 second
+      setTimeout(() => scroll(), 2000); // Start after 2 seconds
+      
+      return () => {
+        window.removeEventListener('wheel', stopAutoScroll);
+        window.removeEventListener('touchmove', stopAutoScroll);
+        window.removeEventListener('keydown', stopAutoScroll);
+      };
     }
   }, [showFullInvitation]);
 
@@ -322,6 +348,7 @@ const MarriageInvitationDisplay: React.FC = () => {
             wisherName={`${invitation.male_name} & ${invitation.female_name}`}
             theme={theme}
             isMarriage={true}
+            noTimeLimit={true}
           />
         </div>
       )}
@@ -511,13 +538,13 @@ const MarriageInvitationDisplay: React.FC = () => {
                       animate={{ opacity: 1 }}
                       transition={{ delay: 1.6 }}
                     >
-                      <h2 
+                      {/* <h2 
                         className="text-3xl sm:text-5xl font-thin mb-2"
                         style={{
                           fontFamily: '"Tangerine", cursive',
                           fontWeight: 700
                         }}
-                      >
+                      > */}
                         <h3 
                           className="text-3xl sm:text-3xl md:text-5xl font-thin tracking-[0.2em]"
                           style={{
@@ -542,7 +569,7 @@ const MarriageInvitationDisplay: React.FC = () => {
                         >
                           {invitation.female_name}
                         </h3>
-                      </h2>
+                      {/* </h2> */}
                     </motion.div>
                     
                     {/* Wedding Details */}
@@ -620,7 +647,7 @@ const MarriageInvitationDisplay: React.FC = () => {
                           const items = [
                             { title: 'Save the Date', icon: '📅', content: formatDate(invitation.marriage_date), desc: 'The day our hearts become one forever', color: theme.primary, gradient: `linear-gradient(135deg, ${theme.primary}, ${theme.secondary})` },
                             { title: 'Sacred Venue', icon: '🏛️', content: invitation.place, desc: 'Where our souls unite in eternal love', color: theme.secondary, gradient: `linear-gradient(135deg, ${theme.secondary}, ${theme.accent})` },
-                            { title: 'From Our Hearts', icon: '💌', content: invitation.additional_info || 'A special message of love', desc: 'A message filled with love and gratitude', color: theme.accent, gradient: `linear-gradient(135deg, ${theme.accent}, ${theme.primary})` },
+                            { title: 'From Our Hearts', icon: '💌', content: 'Two hearts, one soul, endless love', desc: 'A bond that grows stronger with each passing day', color: theme.accent, gradient: `linear-gradient(135deg, ${theme.accent}, ${theme.primary})` },
                             { title: 'Our Promise', icon: '💍', content: 'Forever and Always', desc: 'A bond that will never break', color: theme.primary, gradient: `linear-gradient(135deg, ${theme.primary}, ${theme.accent})` }
                           ];
                           const item = items[index] || items[index % items.length];
@@ -662,6 +689,25 @@ const MarriageInvitationDisplay: React.FC = () => {
                       </div>
 
                     </div>
+
+                    {invitation.map_venue && (
+                      <div className="flex justify-center mt-8">
+                          <motion.a
+                            href={invitation.map_venue}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-3 px-6 py-3 rounded-full text-white font-medium transition-all duration-300 shadow-lg hover:shadow-xl mr-4"
+                            style={{
+                              background: `linear-gradient(135deg, ${theme.primary}, ${theme.secondary})`
+                            }}
+                            whileHover={{ scale: 1.05, y: -2 }}
+                            whileTap={{ scale: 0.95 }}
+                          >
+                            <span className="text-lg">📍</span>
+                            <span>Locate Venue</span>
+                          </motion.a>
+                          </div>
+                        )} 
                   </motion.div>
                 )}
 
@@ -783,6 +829,24 @@ const MarriageInvitationDisplay: React.FC = () => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 3, duration: 1 }}
                       >
+                        {/* Locate Venue Button
+                        {invitation.map_venue && (
+                          <motion.a
+                            href={invitation.map_venue}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-3 px-6 py-3 rounded-full text-white font-medium transition-all duration-300 shadow-lg hover:shadow-xl mr-4"
+                            style={{
+                              background: `linear-gradient(135deg, ${theme.primary}, ${theme.secondary})`
+                            }}
+                            whileHover={{ scale: 1.05, y: -2 }}
+                            whileTap={{ scale: 0.95 }}
+                          >
+                            <span className="text-lg">📍</span>
+                            <span>Locate Venue</span>
+                          </motion.a>
+                        )} */}
+                        
                         <motion.button
                           onClick={() => window.open('/', '_blank')}
                           className="px-6 py-3 rounded-full text-white font-medium text-sm transition-all duration-300 hover:scale-105 active:scale-95"
@@ -795,6 +859,11 @@ const MarriageInvitationDisplay: React.FC = () => {
                         >
                           Create Another Invitation
                         </motion.button>
+                        
+                        {/* Adsterra Social Banner */}
+                        <div className="mt-6">
+                          <AdsterraSocialBanner />
+                        </div>
                       </motion.div>
                     </motion.div>
                   </div>

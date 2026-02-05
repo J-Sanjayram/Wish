@@ -46,7 +46,7 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             <div className="flex items-center gap-3 mb-4">
               
               <div>
-                <h3 className="text-white font-bold text-xl tracking-tight">Lumira</h3>
+                <h3 className="text-white font-bold text-xl tracking-tight">Unfoldly</h3>
                 <p className="text-white/60 text-sm font-medium">Creative Studio</p>
               </div>
             </div>
@@ -116,7 +116,7 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
         >
           <div className="flex items-center gap-6">
             <p className="text-white/60 text-sm">
-              © {currentYear} Lumira. All rights reserved.
+              © {currentYear} Unfoldly. All rights reserved.
             </p>
             <div className="hidden sm:flex items-center gap-4">
               {footerLinks.social.map((social, index) => (

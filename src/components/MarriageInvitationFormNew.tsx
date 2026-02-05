@@ -3,6 +3,7 @@ import { supabase, uploadMarriageImage } from '../supabase';
 import { Heart, Calendar, MapPin, Music, Upload, X, Sparkles, User, Users, MessageCircle, Palette, Camera, Plus, ChevronDown, Check, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import MusicSelector from './MusicSelector';
+import AdsterraDisplayBanner from './AdsterraDisplayBanner';
 import { ProfilePictureUpload } from './ProfilePictureUpload';
 
 
@@ -11,6 +12,7 @@ interface MarriageFormData {
   femaleName: string;
   date: string;
   place: string;
+  mapVenue: string;
   song?: {
     title: string;
     artist: string;
@@ -31,6 +33,7 @@ const MarriageInvitationForm: React.FC = () => {
     femaleName: '',
     date: '',
     place: '',
+    mapVenue: '',
     song: undefined,
     additionalInfo: '',
     maleImage: null,
@@ -172,6 +175,7 @@ const MarriageInvitationForm: React.FC = () => {
           male_image: formData.maleImage ? imageUrls[0] : null,
           female_image: formData.femaleImage ? imageUrls[formData.maleImage ? 1 : 0] : null,
           love_images: imageUrls.slice((formData.maleImage ? 1 : 0) + (formData.femaleImage ? 1 : 0)),
+          map_venue: formData.mapVenue,
           primary_color: formData.primaryColor,
           created_at: new Date().toISOString(),
           expires_at: new Date(new Date(formData.date).getTime() + 24 * 60 * 60 * 1000).toISOString()
@@ -218,12 +222,15 @@ const MarriageInvitationForm: React.FC = () => {
           </div>
           <motion.button
             onClick={() => navigator.clipboard.writeText(invitationUrl)}
-            className="w-full bg-gradient-to-r from-rose-500 to-pink-500 text-white py-4 rounded-2xl font-semibold hover:shadow-lg transition-all duration-300"
+            className="w-full bg-gradient-to-r from-rose-500 to-pink-500 text-white py-4 rounded-2xl font-semibold hover:shadow-lg transition-all duration-300 mb-4"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
             Copy & Share
           </motion.button>
+          
+          {/* Adsterra Display Banner */}
+          <AdsterraDisplayBanner />
         </motion.div>
       </div>
     );
@@ -471,6 +478,38 @@ const MarriageInvitationForm: React.FC = () => {
                     )}
                   </AnimatePresence>
                 </div>
+              </div>
+
+              {/* Map Venue */}
+              <div className="space-y-3">
+                <label className="block text-white font-semibold">
+                  Map Venue Link
+                  <span className="text-gray-400 font-normal ml-1">(Optional)</span>
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <MapPin className="w-5 h-5 text-blue-400" />
+                  </div>
+                  <input
+                    type="url"
+                    value={formData.mapVenue}
+                    onChange={(e) => setFormData(prev => ({ ...prev, mapVenue: e.target.value }))}
+                    className="w-full pl-12 pr-4 py-4 rounded-2xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus:outline-none transition-all duration-300 bg-white text-gray-800 placeholder-gray-400"
+                    placeholder="Google Maps link or venue location URL"
+                  />
+                </div>
+                <p className="text-white/60 text-sm">Add a Google Maps link to help guests locate the venue</p>
+                <button
+  type="button"
+  onClick={() =>
+    window.open("https://www.google.com/maps", "_blank", "noopener,noreferrer")
+  }
+  className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 transition"
+>
+  <MapPin className="w-4 h-4" />
+  Open Google Maps
+</button>
+
               </div>
 
               {/* Additional Info */}

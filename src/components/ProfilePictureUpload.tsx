@@ -90,9 +90,16 @@ export const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
     setIsProcessingBg(true);
     setBgProgress(0);
     
+    // 60-second countdown timer
+    const totalTime = 60000; // 60 seconds
+    const interval = 100; // Update every 100ms
+    let elapsed = 0;
+    
     const progressInterval = setInterval(() => {
-      setBgProgress(prev => prev < 90 ? prev + 10 : 90);
-    }, 200);
+      elapsed += interval;
+      const progress = Math.min((elapsed / totalTime) * 100, 90);
+      setBgProgress(Math.floor(progress));
+    }, interval);
     
     try {
       const { removeBackground } = await import('@imgly/background-removal');
@@ -248,7 +255,7 @@ export const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
                     {isProcessingBg ? (
                       <>
                         <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                        Processing {bgProgress}%
+                        Processing... {bgProgress}% ({Math.ceil((60 - (bgProgress * 60 / 100)))}s)
                       </>
                     ) : (
                       <>

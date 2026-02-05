@@ -7,6 +7,8 @@ const RemoveBackground: React.FC = () => {
   const [originalImage, setOriginalImage] = useState<string | null>(null);
   const [processedImage, setProcessedImage] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [timeRemaining, setTimeRemaining] = useState(60);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -25,6 +27,21 @@ const RemoveBackground: React.FC = () => {
     if (!originalImage) return;
     
     setIsProcessing(true);
+    setProgress(0);
+    setTimeRemaining(60);
+    
+    // 60-second countdown timer
+    const totalTime = 60000; // 60 seconds
+    const interval = 100; // Update every 100ms
+    let elapsed = 0;
+    
+    const progressInterval = setInterval(() => {
+      elapsed += interval;
+      const progressPercent = Math.min((elapsed / totalTime) * 100, 90);
+      const remaining = Math.ceil((totalTime - elapsed) / 1000);
+      setProgress(Math.floor(progressPercent));
+      setTimeRemaining(Math.max(remaining, 0));
+    }, interval);
     
     try {
       const { removeBackground } = await import('@imgly/background-removal');
@@ -36,12 +53,19 @@ const RemoveBackground: React.FC = () => {
       
       const url = URL.createObjectURL(resultBlob);
       setProcessedImage(url);
+      setProgress(100);
+      setTimeRemaining(0);
       
     } catch (error) {
       console.error('Error:', error);
       alert('Background removal service is currently unavailable. Please try again later.');
     } finally {
-      setIsProcessing(false);
+      clearInterval(progressInterval);
+      setTimeout(() => {
+        setIsProcessing(false);
+        setProgress(0);
+        setTimeRemaining(60);
+      }, 500);
     }
   };
 
@@ -136,7 +160,10 @@ const RemoveBackground: React.FC = () => {
                 {isProcessing ? (
                   <>
                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Processing...
+                    <div className="flex flex-col items-center">
+                      <span>Processing... {progress}%</span>
+                      <span className="text-sm opacity-80">({timeRemaining}s remaining)</span>
+                    </div>
                   </>
                 ) : (
                   'Remove Background'
