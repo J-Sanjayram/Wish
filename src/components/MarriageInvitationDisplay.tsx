@@ -148,12 +148,25 @@ const MarriageInvitationDisplay: React.FC = () => {
     script.type = 'module';
     document.head.appendChild(script);
 
+    // Disable right-click and inspect
+    const disableRightClick = (e: MouseEvent) => e.preventDefault();
+    const disableKeys = (e: KeyboardEvent) => {
+      if (e.key === 'F12' || (e.ctrlKey && ['u', 'U', 'i', 'I', 's', 'S'].includes(e.key))) {
+        e.preventDefault();
+      }
+    };
+    
+    document.addEventListener('contextmenu', disableRightClick);
+    document.addEventListener('keydown', disableKeys);
+
     fetchInvitation();
 
     return () => {
       if (document.head.contains(script)) {
         document.head.removeChild(script);
       }
+      document.removeEventListener('contextmenu', disableRightClick);
+      document.removeEventListener('keydown', disableKeys);
     };
   }, [id]);
 
@@ -498,7 +511,9 @@ const MarriageInvitationDisplay: React.FC = () => {
         <img
           src={invitation.male_image}
           alt={invitation.male_name}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover select-none pointer-events-none"
+          onContextMenu={(e) => e.preventDefault()}
+          onDragStart={(e) => e.preventDefault()}
         />
       </div>
     </motion.div>
@@ -524,6 +539,9 @@ const MarriageInvitationDisplay: React.FC = () => {
           src={invitation.female_image}
           alt={invitation.female_name}
           className="w-full h-full object-cover"
+          onContextMenu={(e) => e.preventDefault()}
+          onDragStart={(e) => e.preventDefault()}
+          style={{ userSelect: 'none', pointerEvents: 'none' }}
         />
       </div>
     </motion.div>
@@ -664,7 +682,7 @@ const MarriageInvitationDisplay: React.FC = () => {
                                 <motion.div className="relative group cursor-pointer" whileHover={{ scale: 1.05 }}>
                                   <div className="absolute -inset-4 rounded-3xl blur-2xl opacity-50" style={{ background: `linear-gradient(135deg, rgba(${theme.glow}, 0.3), rgba(${theme.glow}, 0.1))` }} />
                                   <div className="relative rounded-3xl overflow-hidden shadow-2xl">
-                                    <img src={image} alt={item.title} className="w-full h-full sm:h-96 object-cover" />
+                                    <img src={image} alt={item.title} className="w-full h-full sm:h-96 object-cover select-none pointer-events-none" onContextMenu={(e) => e.preventDefault()} onDragStart={(e) => e.preventDefault()} />
                                   </div>
                                 </motion.div>
                               </div>
