@@ -1,8 +1,13 @@
 User-agent: *
 Allow: /
 
+# Block non-content paths
+Disallow: /static/
+Disallow: /*.json$
+Allow: /manifest.json
+
 # Sitemap
-Sitemap: https://Unfoldly.netlify.app/sitemap.xml
+Sitemap: https://unfoldly.netlify.app/sitemap.xml
 
 # Crawl-delay
 Crawl-delay: 1

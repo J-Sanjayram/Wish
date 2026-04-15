@@ -1,25 +1,55 @@
 {
   "short_name": "Unfoldly",
-  "name": "Unfoldly - AI Creative Studio",
+  "name": "Unfoldly - Free Photo Resizer & Creative Studio",
+  "description": "Free photo resizer, compressor, birthday wishes, wedding invitations & AI background removal. 100% private.",
   "icons": [
     {
       "src": "favicon.svg",
       "sizes": "any",
-      "type": "image/svg+xml"
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
     },
     {
       "src": "logo192.svg",
       "type": "image/svg+xml",
-      "sizes": "192x192"
+      "sizes": "192x192",
+      "purpose": "any maskable"
     },
     {
       "src": "logo512.svg",
       "type": "image/svg+xml",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "any maskable"
     }
   ],
-  "start_url": ".",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "orientation": "portrait-primary",
   "theme_color": "#9333ea",
-  "background_color": "#ffffff"
+  "background_color": "#1e1b4b",
+  "categories": ["photo", "utilities", "productivity"],
+  "shortcuts": [
+    {
+      "name": "Photo Resizer",
+      "short_name": "Resizer",
+      "description": "Resize & compress photos online",
+      "url": "/tools/photo-resizer",
+      "icons": [{ "src": "/favicon.svg", "sizes": "any" }]
+    },
+    {
+      "name": "Birthday Wishes",
+      "short_name": "Birthday",
+      "description": "Create birthday wish cards",
+      "url": "/tools/birthday-wishes",
+      "icons": [{ "src": "/favicon.svg", "sizes": "any" }]
+    },
+    {
+      "name": "Remove Background",
+      "short_name": "BG Remove",
+      "description": "AI background removal",
+      "url": "/tools/remove-background",
+      "icons": [{ "src": "/favicon.svg", "sizes": "any" }]
+    }
+  ]
 }

@@ -56,6 +56,14 @@ const Navigation: React.FC<NavigationProps> = ({ onNavigate, currentPage }) => {
       route: '/tools/remove-background'
     },
     { 
+      key: 'photo-resizer', 
+      label: 'Photo Resizer', 
+      icon: <Image className="w-4 h-4" />, 
+      description: 'Resize, crop & convert images',
+      route: '/tools/photo-resizer',
+      isNew: true
+    },
+    { 
       key: 'manage', 
       label: 'Manage Images', 
       icon: <Image className="w-4 h-4" />, 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Heart, Camera, Scissors, Sparkles, Shield, Zap } from 'lucide-react';
+import { Heart, Camera, Scissors, Sparkles, Shield, Zap, ImageIcon } from 'lucide-react';
 import Header from './Header';
 import Footer from './Footer';
 import AdsterraSocialBanner from './AdsterraSocialBanner';
@@ -191,7 +191,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
               <p className="text-xl text-white/70 max-w-3xl mx-auto leading-relaxed">Professional-grade tools designed for everyone, from beginners to experts</p>
             </motion.div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-10">
               {[
                 {
                   icon: Heart,
@@ -222,7 +222,19 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                   color: 'from-blue-500 to-cyan-500',
                   bgColor: 'from-blue-500/10 to-cyan-500/10',
                   action: () => onNavigate('remove-bg'),
+                  popular: false,
                   stats: '10K+ images processed'
+                },
+                {
+                  icon: ImageIcon,
+                  title: 'Photo Resizer',
+                  description: 'Resize, crop, rotate and convert images in px, cm, mm or inch. Apply filters and download as ZIP.',
+                  features: ['px / cm / mm / inch', '8 Filters', 'Rotate & Flip', 'Batch ZIP Download'],
+                  color: 'from-emerald-500 to-teal-500',
+                  bgColor: 'from-emerald-500/10 to-teal-500/10',
+                  action: () => window.location.href = '/tools/photo-resizer',
+                  popular: false,
+                  stats: 'Free & Private'
                 }
               ].map((feature, index) => (
                 <motion.div

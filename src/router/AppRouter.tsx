@@ -9,6 +9,7 @@ const MainApp = React.lazy(() => import('../components/MainApp'));
 const MarriageInvitationPage = React.lazy(() => import('../components/MarriageInvitationPage'));
 const MarriageInvitationDisplay = React.lazy(() => import('../components/MarriageInvitationDisplay'));
 const RemoveBackgroundPage = React.lazy(() => import('../components/RemoveBackgroundPage'));
+const PhotoResizerPage = React.lazy(() => import('../components/PhotoResizerPage'));
 const DeleteHandler = React.lazy(() => import('../components/DeleteHandler'));
 const DeleteMarriageHandler = React.lazy(() => import('../components/DeleteMarriageHandler'));
 
@@ -53,6 +54,10 @@ const LoadingSpinner: React.FC<{ message?: string }> = ({ message = "Loading..."
     {
       path: "/tools/remove-background",
       element: <RemoveBackgroundPage key="background" />
+    },
+    {
+      path: "/tools/photo-resizer",
+      element: <PhotoResizerPage key="photo-resizer" />
     },
   {
     path: "/invitation/:id",
